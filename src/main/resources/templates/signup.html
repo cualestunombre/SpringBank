@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Bank - 회원가입</title>
+    <link rel="stylesheet" th:href="@{../../css/upper.css}">
+    <style>
+        .signup_info_container{
+            margin-top: 20px;
+            width:100%;
+            height:450px;
+            text-align: center;
+        }
+        .signup_info_contents{
+            text-align: left;
+            padding-top: 30px;
+            padding-left: 50px;
+            border-radius: 5px;
+            width:600px;
+            display: inline-block;
+            height:450px;
+            background-color: rgb(200,200,200,0.2);
+        }
+        .signup_box_name input{
+            margin-left: 5px;
+            width:200px;
+            height:22px;
+            border: none;
+            font-size:12px;
+
+        }
+        .signup_box_name{
+            font-weight: 500;
+            font-size:15px;
+        }
+        .signup_box_email input{
+            margin-left: 5px;
+            width:300px;
+            height:22px;
+            border: none;
+            font-size:12px;
+
+        }
+        .signup_box_email{
+            margin-top: 30px;
+            font-weight: 500;
+            font-size:15px;
+        }
+        .signup_box_password input{
+            margin-left: 5px;
+            width:300px;
+            height:22px;
+            border: none;
+            font-size:12px;
+
+        }
+        .signup_box_password{
+            margin-top: 30px;
+            font-weight: 500;
+            font-size:15px;
+        }
+        .signup_rule{
+            padding-top: 30px;
+        }
+        .signup_rule_contents{
+            font-size:15px;
+            margin-right: 50px;
+        }
+        .signup_box_checked{
+            margin-top: 30px;
+            font-weight: 500;
+            font-size:15px;
+        }
+        .signup_box_submit{
+
+            margin-top:10px;
+
+        }
+        .signup_box_submit button{
+            border: none;
+            border-radius: 5px;
+            background-color: rgb(120,184,86);
+        }
+        .signup_field-error{
+            color:red;
+            font-size:11px;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+    <div th:insert="~{ welcome :: upper }"></div>
+    <div class="signup_info_container">
+        <form class="signup_info_contents" th:action method="post" th:object="${member}" >
+            <div class="signup_box_name">
+                <label for="name">이름</label>
+                <input type="text" id="name" th:field="*{name}" placeholder="한글성명을 입력해 주세요">
+                <div class="signup_field-error"  th:errors="*{name}"></div>
+            </div>
+            <div class="signup_box_email">
+                <label for="email">이메일</label>
+                <input type="text" id="email" th:field="*{email}" placeholder="형식에 맞게 이메일을 입력해 주세요">
+                <div class="signup_field-error" th:errors="*{email}"></div>
+            </div>
+            <div class="signup_box_password">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" th:field="*{password}" placeholder="영문 대소문자 및 숫자를 포함하여 비밀번호를 입력해주세요">
+                <div class="signup_field-error" th:errors="*{password}"> </div>
+            </div>
+
+            <div class="signup_rule">
+                <h3>이용약관</h3>
+                <div class="signup_rule_contents">본 사이트는 스프링의 다양한 기술을 시험하는 사이트입니다. 본 사이트는 thymelaef를 통해 SSR로 렌더링돠며, 스프링 MVC(controller, 에러처리 ,bean validation, 인터셉터, 메세지, 국제화
+                    ) 및 JPA 기술을 사용하여 Spring Bank를 구현하였습니다. Spring Bank는 송금 시 트랜잭션 기능을 제공하여 안전한 송금 기능을 제공합니다.
+                </div>
+            </div>
+            <div class="signup_box_checked">
+            <label for="checked">이용약관 동의</label>
+            <input type="checkbox" id="checked" th:field="*{checked}">
+            </div>
+            <div class="signup_box_submit">
+                <button type="submit">제출</button>
+            </div>
+            <div th:if="${#fields.hasGlobalErrors()}">
+                <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>

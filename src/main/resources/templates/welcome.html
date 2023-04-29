@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Bank</title>
+    <link rel="stylesheet" th:href="@{css/upper.css}">
+
+</head>
+<body>
+    <div class="upper_titleContainer" th:fragment="upper" >
+        <h1  class="upper_title"><a class="upper_login noDeco" th:href="@{/}">SPRING BANK</a></h1>
+        <th:block th:if="${loginMember==null}">
+            <div class="upper_loginSignUpContainer">
+                <a class="upper_login noDeco" th:href="@{/auth/login}">로그인</a>
+                <a class="upper_signup noDeco"th:href="@{/auth/signup}">회원가입</a>
+            </div>
+        </th:block>
+        <th:block th:if="${loginMember!=null}">
+            <div class="upper_greetingContainer">
+                <p class="upper_greeting" >[[|${loginMember.name}님 반가워요|]]<p/>
+                <a class="upper_logout noDeco"th:href="@{/auth/logout}">로그아웃</a>
+            </div>
+        </th:block>
+
+</body>
+</html>
