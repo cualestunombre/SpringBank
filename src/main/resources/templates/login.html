@@ -14,32 +14,40 @@
     .login_contents{
       text-align: left;
       padding-top: 30px;
-      padding-left: 50px;
+      padding-left: 150px;
       border-radius: 5px;
-      width:400px;
+      width:600px;
       display: inline-block;
       height:500px;
-      background-color: rgb(200,200,200,0.2);
+
     }
     .login_box_email input{
+      padding:0px;
       margin-left: 5px;
-      width:200px;
-      height:22px;
-      border: none;
-      font-size:12px;
+      margin-top: 5px;
+      border: 1px solid rgb(120,184,86);
+      width:400px;
+      height:40px;
+
+      font-size:15px;
 
     }
     .login_box_email{
+      display: flex;
+
       margin-top: 30px;
       font-weight: 500;
       font-size:15px;
     }
     .login_box_password input{
       margin-left: 5px;
-      width:190px;
-      height:22px;
-      border: none;
-      font-size:12px;
+      margin-top: 5px;
+      padding:0px;
+      border: 1px solid rgb(120,184,86);
+      width:400px;
+      height:40px;
+
+      font-size:15px;
 
     }
     .login_box_password{
@@ -48,10 +56,24 @@
       font-size:15px;
     }
     .login_button{
+      padding:0px;
+      width:400px;
       margin-top: 30px;
+      margin-left: 5px;
+      height: 50px;
       border: none;
       border-radius: 5px;
       background-color: rgb(120,184,86);
+    }
+    .login_flex{
+      display: flex;
+      flex-direction: column;
+    }
+    .login_field-error{
+      margin-top: 10px;
+      color:red;
+      font-size:10px;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -60,16 +82,16 @@
   <div class="login_container">
     <div class="login_contents">
       <form th:action method="post" th:object="${member}">
-          <div class="login_box_email">
+          <div class="login_box_email login_flex">
             <label for="email">이메일</label>
             <input id="email" type="text" placeholder="이메일을 입력해 주세요" th:field="*{email}">
           </div>
-        <div class="login_box_password">
+        <div class="login_box_password login_flex">
           <label for="password">비밀번호</label>
           <input id="password" type="password" placeholder="비밀번호를 입력해주세요" th:field="*{password}">
         </div>
         <button type="submit" class="login_button">로그인</button>
-        <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
+        <p class="login_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
       </form>
     </div>
   </div>

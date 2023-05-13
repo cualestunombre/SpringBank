@@ -31,19 +31,16 @@ public class AuthController {
         if(form.getChecked()==false){
             bindingResult.reject("CheckRequired","이용약관에 동의해 주세요");
         }
-        Member savedMember = memberService.signup(form);
-        if(savedMember==null){
-            bindingResult.rejectValue("email","SameEmail","중복된 이메일 입니다");
+        if(!bindingResult.hasErrors()){
+            Member savedMember = memberService.signup(form);
+            if(savedMember==null){
+                bindingResult.rejectValue("email","SameEmail","중복된 이메일 입니다");
+            }
         }
         if(!bindingResult.hasErrors()){
-
             return "redirect:/";
         }
-
-        else{
-
-            return "signup";
-        }
+        return "signup";
     }
     @GetMapping("/login")
     public String getLogin(Model model){
