@@ -4,12 +4,13 @@
     margin:0px;
     padding-top:20px;
     padding-left: 20px;
-    color:white;
+    color:rgb(86,143,77);
+
 
 }
 .upper_titleContainer{
+    background-color: white;
     height:80px;
-    background-color: rgb(0,70,0,0.9);
     width:100%;
     display: flex;
     justify-content: space-between;
@@ -24,19 +25,19 @@
 
 }
 .upper_login{
-    color:white;
+    color:rgb(86,143,77);
 }
 .upper_signup{
-    color:white;
+    color:rgb(86,143,77);
 }
 .upper_logout{
-    color:white;
+    color:rgb(86,143,77);
 }
 .upper_greeting{
-    color:white;
+    color:rgb(86,143,77);
 }
 .upper_greetingContainer{
-    color:white;
+
     padding-right:20px;
     width:200px;
     padding-top: 15px;

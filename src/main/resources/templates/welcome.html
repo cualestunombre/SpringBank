@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="upper_titleContainer" th:fragment="upper" >
-        <h1  class="upper_title"><a class="upper_login noDeco" th:href="@{/}">SPRING BANK</a></h1>
+        <h1  class="upper_title"><a class="upper_title noDeco" th:href="@{/}">SPRING BANK</a></h1>
         <th:block th:if="${loginMember==null}">
             <div class="upper_loginSignUpContainer">
                 <a class="upper_login noDeco" th:href="@{/auth/login}">로그인</a>
@@ -21,6 +21,6 @@
                 <a class="upper_logout noDeco"th:href="@{/auth/logout}">로그아웃</a>
             </div>
         </th:block>
-
+    </div>
 </body>
 </html>

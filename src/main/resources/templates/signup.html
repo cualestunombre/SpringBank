@@ -13,32 +13,37 @@
         }
         .signup_info_contents{
             text-align: left;
-            padding-top: 30px;
-            padding-left: 50px;
+
+            padding-left: 150px;
             border-radius: 5px;
             width:600px;
             display: inline-block;
             height:450px;
-            background-color: rgb(200,200,200,0.2);
+
         }
         .signup_box_name input{
             margin-left: 5px;
-            width:200px;
-            height:22px;
-            border: none;
-            font-size:12px;
+            margin-top: 5px;
+            border: 1px solid rgb(120,184,86);
+            width:400px;
+            height:40px;
+
+            font-size:15px;
 
         }
         .signup_box_name{
             font-weight: 500;
             font-size:15px;
         }
+
         .signup_box_email input{
             margin-left: 5px;
-            width:300px;
-            height:22px;
-            border: none;
-            font-size:12px;
+            margin-top: 5px;
+            border: 1px solid rgb(120,184,86);
+            width:400px;
+            height:40px;
+
+            font-size:15px;
 
         }
         .signup_box_email{
@@ -48,10 +53,11 @@
         }
         .signup_box_password input{
             margin-left: 5px;
-            width:300px;
-            height:22px;
-            border: none;
-            font-size:12px;
+            margin-top: 5px;
+            border: 1px solid rgb(120,184,86);
+            width:400px;
+            height:40px;
+            font-size:15px;
 
         }
         .signup_box_password{
@@ -60,9 +66,15 @@
             font-size:15px;
         }
         .signup_rule{
-            padding-top: 30px;
+            margin-top: 10px;
+        }
+        .signup_rule h3{
+            margin-top: 0px;
         }
         .signup_rule_contents{
+            background-color: rgb(120,184,86,0.1);
+            padding:20px;
+            width:400px;
             font-size:15px;
             margin-right: 50px;
         }
@@ -77,14 +89,25 @@
 
         }
         .signup_box_submit button{
+            text-align: center;
             border: none;
             border-radius: 5px;
+            width: 100px;
+            height: 40px;
+            margin-left: 160px;
             background-color: rgb(120,184,86);
+
         }
         .signup_field-error{
+            margin-top: 10px;
             color:red;
-            font-size:11px;
+            font-size:10px;
             font-weight: 500;
+        }
+        .signup_flex{
+            display: flex;
+            flex-direction: column;
+
         }
 
     </style>
@@ -93,17 +116,17 @@
     <div th:insert="~{ welcome :: upper }"></div>
     <div class="signup_info_container">
         <form class="signup_info_contents" th:action method="post" th:object="${member}" >
-            <div class="signup_box_name">
+            <div class="signup_box_name signup_flex">
                 <label for="name">이름</label>
                 <input type="text" id="name" th:field="*{name}" placeholder="한글성명을 입력해 주세요">
                 <div class="signup_field-error"  th:errors="*{name}"></div>
             </div>
-            <div class="signup_box_email">
+            <div class="signup_box_email signup_flex">
                 <label for="email">이메일</label>
                 <input type="text" id="email" th:field="*{email}" placeholder="형식에 맞게 이메일을 입력해 주세요">
                 <div class="signup_field-error" th:errors="*{email}"></div>
             </div>
-            <div class="signup_box_password">
+            <div class="signup_box_password signup_flex">
                 <label for="password">비밀번호</label>
                 <input type="password" id="password" th:field="*{password}" placeholder="영문 대소문자 및 숫자를 포함하여 비밀번호를 입력해주세요">
                 <div class="signup_field-error" th:errors="*{password}"> </div>
@@ -116,15 +139,14 @@
                 </div>
             </div>
             <div class="signup_box_checked">
-            <label for="checked">이용약관 동의</label>
-            <input type="checkbox" id="checked" th:field="*{checked}">
+                <label for="checked">이용약관 동의</label>
+                <input type="checkbox" id="checked" th:field="*{checked}">
+                <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
             </div>
             <div class="signup_box_submit">
                 <button type="submit">제출</button>
             </div>
-            <div th:if="${#fields.hasGlobalErrors()}">
-                <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
-            </div>
+
 
         </form>
     </div>

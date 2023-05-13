@@ -23,7 +23,7 @@ public class MemberService {
         member.setName(saveForm.getName());
         member.setPassword(saveForm.getPassword());
         Member sameEmailMember = memberRepository.findByEmail(saveForm.getEmail());
-        if(sameEmailMember== null){
+        if(sameEmailMember == null){
             return memberRepository.saveMember(member);
         }
         return null;
@@ -31,9 +31,10 @@ public class MemberService {
     }
     @Transactional
     public Member login(MemberLoginForm loginForm, HttpServletRequest request){
+
         Member member = memberRepository.findByEmail(loginForm.getEmail());
-        if(member==null) return null;
-        else if(!member.getPassword().equals(loginForm.getPassword())) return null;
+        if(member==null) {return null;}
+        else if(!member.getPassword().equals(loginForm.getPassword())) {return null;}
         else {
             HttpSession session = request.getSession(true);
             session.setAttribute(SessionConst.LOGIN_MEMBER,member);

@@ -21,7 +21,8 @@ public class MemberRepository {
         String jpql = "SELECT m FROM Member m WHERE m.email=:email";
         TypedQuery<Member> query = em.createQuery(jpql, Member.class);
         query.setParameter("email",email);
-        return query.getResultList().stream().findAny().orElse(null);
+        Member foundMember = query.getResultList().stream().findFirst().orElse(null);
+        return foundMember;
 
     }
 
