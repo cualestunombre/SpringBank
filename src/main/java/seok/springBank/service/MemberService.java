@@ -2,11 +2,12 @@ package seok.springBank.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.member.MemberLoginForm;
 import seok.springBank.domain.member.MemberSaveForm;
-import seok.springBank.repository.MemberRepository;
+import seok.springBank.repository.memberRepository.MemberRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -14,9 +15,10 @@ import javax.servlet.http.HttpSession;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(isolation = Isolation.SERIALIZABLE)
 public class MemberService {
     private final MemberRepository memberRepository;
-    @Transactional
+
     public Member signup(MemberSaveForm saveForm){
         Member member = new Member();
         member.setEmail(saveForm.getEmail());
@@ -29,7 +31,7 @@ public class MemberService {
         return null;
 
     }
-    @Transactional
+
     public Member login(MemberLoginForm loginForm, HttpServletRequest request){
 
         Member member = memberRepository.findByEmail(loginForm.getEmail());

@@ -4,10 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.member.MemberLoginForm;
 import seok.springBank.domain.member.MemberSaveForm;
@@ -48,13 +45,14 @@ public class AuthController {
         return "login";
     }
     @PostMapping("/login")
-    public String handleLogin(@ModelAttribute("member") MemberLoginForm form,BindingResult bindingResult,Model model, HttpServletRequest request){
+    public String handleLogin(@ModelAttribute("member") MemberLoginForm form,BindingResult bindingResult,Model model, HttpServletRequest request,
+    @RequestParam(defaultValue = "") String redirectURL){
         Member member = memberService.login(form,request);
         if(member == null){
             bindingResult.reject("LoginFail","아이디와 비밀번호를 확인해 주세요");
             return "login";
         }
-        return "redirect:/";
+        return "redirect:" + (redirectURL.isEmpty() ? "/" : redirectURL);
 
 
     }

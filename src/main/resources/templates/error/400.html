@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spring Bank 404</title>
+  <link rel="stylesheet" th:href="@{../../css/upper.css}">
+  <style>
+    .error400{
+      position: relative;
+      top:100px;
+      text-align: center;
+      font-weight: 300;
+
+    }
+    a.error400{
+      font-weight: 500;
+      display: block;
+      text-decoration: none;
+      color: rgb(120,184,86);
+    }
+
+  </style>
+</head>
+<body>
+<div th:insert="~{ welcome :: upper }"></div>
+<h1 class="error404">죄송합니다.</h1>
+<h2 class="error404">잘못된 요청입니다</h2>
+<a  class="error404" th:href="@{/}">홈으로</a>
+</body>
+</html>

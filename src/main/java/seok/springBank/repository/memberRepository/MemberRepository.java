@@ -1,4 +1,4 @@
-package seok.springBank.repository;
+package seok.springBank.repository.memberRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,6 +15,9 @@ public class MemberRepository {
     public Member saveMember(Member member){
         em.persist(member);
         return member;
+    }
+    public Member findById(Long memberId){
+        return em.find(Member.class,memberId);
     }
 
     public Member findByEmail(String email){

@@ -1,26 +1,32 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Spring Bank - 회원가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{../../css/upper.css}">
+    <link rel="stylesheet" th:href="@{../../css/footer.css}">
     <style>
-        .signup_info_container{
-            margin-top: 20px;
-            width:100%;
-            height:450px;
-            text-align: center;
+        .signup_info_container {
+            width: 100%;
+
+            display: grid;
+            align-items: center;
+            justify-content: center;
         }
-        .signup_info_contents{
+
+        .signup_info_contents {
             text-align: left;
-
-            padding-left: 150px;
             border-radius: 5px;
-            width:600px;
-            display: inline-block;
-            height:450px;
-
+            width: 400px;
+            display: block;
+            height: auto;
+            margin-top: 50px; /* Adjusted */
         }
+
+
+
         .signup_box_name input{
             margin-left: 5px;
             margin-top: 5px;
@@ -96,6 +102,7 @@
             height: 40px;
             margin-left: 160px;
             background-color: rgb(120,184,86);
+            margin-bottom: 50px;
 
         }
         .signup_field-error{
@@ -110,45 +117,46 @@
 
         }
 
+        /* 나머지 스타일 */
+
     </style>
 </head>
 <body>
-    <div th:insert="~{ welcome :: upper }"></div>
-    <div class="signup_info_container">
-        <form class="signup_info_contents" th:action method="post" th:object="${member}" >
-            <div class="signup_box_name signup_flex">
-                <label for="name">이름</label>
-                <input type="text" id="name" th:field="*{name}" placeholder="한글성명을 입력해 주세요">
-                <div class="signup_field-error"  th:errors="*{name}"></div>
-            </div>
-            <div class="signup_box_email signup_flex">
-                <label for="email">이메일</label>
-                <input type="text" id="email" th:field="*{email}" placeholder="형식에 맞게 이메일을 입력해 주세요">
-                <div class="signup_field-error" th:errors="*{email}"></div>
-            </div>
-            <div class="signup_box_password signup_flex">
-                <label for="password">비밀번호</label>
-                <input type="password" id="password" th:field="*{password}" placeholder="영문 대소문자 및 숫자를 포함하여 비밀번호를 입력해주세요">
-                <div class="signup_field-error" th:errors="*{password}"> </div>
-            </div>
+<th:block th:replace="fragment/upperBar :: upper"></th:block>
+<div class="signup_info_container">
+    <form class="signup_info_contents" th:action method="post" th:object="${member}">
+        <div class="signup_box_name signup_flex">
+            <label for="name">이름</label>
+            <input type="text" id="name" th:field="*{name}" placeholder="한글성명을 입력해 주세요">
+            <div class="signup_field-error"  th:errors="*{name}"></div>
+        </div>
+        <div class="signup_box_email signup_flex">
+            <label for="email">이메일</label>
+            <input type="text" id="email" th:field="*{email}" placeholder="형식에 맞게 이메일을 입력해 주세요">
+            <div class="signup_field-error" th:errors="*{email}"></div>
+        </div>
+        <div class="signup_box_password signup_flex">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" th:field="*{password}" placeholder="영문 대소문자 및 숫자를 포함하여 비밀번호를 입력해주세요">
+            <div class="signup_field-error" th:errors="*{password}"> </div>
+        </div>
 
-            <div class="signup_rule">
-                <h3>이용약관</h3>
-                <div class="signup_rule_contents">본 사이트는 스프링의 다양한 기술을 시험하는 사이트입니다. 본 사이트는 thymelaef를 통해 SSR로 렌더링돠며, 스프링 MVC(controller, 에러처리 ,bean validation, 인터셉터, 메세지, 국제화
-                    ) 및 JPA 기술을 사용하여 Spring Bank를 구현하였습니다. Spring Bank는 송금 시 트랜잭션 기능을 제공하여 안전한 송금 기능을 제공합니다.
-                </div>
+        <div class="signup_rule">
+            <h3>이용약관</h3>
+            <div class="signup_rule_contents">본 사이트는 스프링의 다양한 기술을 시험하는 사이트입니다. 본 사이트는 thymelaef를 통해 SSR로 렌더링돠며, 스프링 MVC(controller, 에러처리 ,bean validation, 인터셉터, 메세지, 국제화
+                ) 및 JPA 기술을 사용하여 Spring Bank를 구현하였습니다. Spring Bank는 송금 시 트랜잭션 기능을 제공하여 안전한 송금 기능을 제공합니다.
             </div>
-            <div class="signup_box_checked">
-                <label for="checked">이용약관 동의</label>
-                <input type="checkbox" id="checked" th:field="*{checked}">
-                <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
-            </div>
-            <div class="signup_box_submit">
-                <button type="submit">제출</button>
-            </div>
-
-
-        </form>
-    </div>
+        </div>
+        <div class="signup_box_checked">
+            <label for="checked">이용약관 동의</label>
+            <input type="checkbox" id="checked" th:field="*{checked}">
+            <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
+        </div>
+        <div class="signup_box_submit">
+            <button type="submit">제출</button>
+        </div>
+    </form>
+</div>
+<th:block th:replace="fragment/footer :: footer"></th:block>
 </body>
 </html>

@@ -1,0 +1,16 @@
+.bank-footer {
+    background-color: #d8f4db;
+    padding: 20px;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: 0;
+}
+
+.bank-footer a {
+    color: #333;
+    text-decoration: none;
+}
+
+.bank-footer a:hover {
+    text-decoration: underline;
+}

@@ -15,7 +15,8 @@ import java.util.List;
 public class Member {
     @GeneratedValue
     @Id
-    Integer Id;
+    @Column(name="member_id")
+    Long id;
 
     @Column(name="name",nullable = false)
     String name;

@@ -2,6 +2,7 @@ package seok.springBank.domain.account;
 
 import lombok.Getter;
 import lombok.Setter;
+import seok.springBank.domain.policy.Policy;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -17,4 +18,6 @@ public class SavingsAccount extends Account {
     LocalDateTime endAt;
     @Column(nullable = false)
     Long leftCount;
+
+
 }

@@ -1,10 +1,11 @@
 .upper_title{
     text-align: left;
-    font-weight: 500;
+    font-weight: 400;
     margin:0px;
     padding-top:20px;
     padding-left: 20px;
     color:rgb(86,143,77);
+    font-size:30px;
 
 
 }
@@ -18,7 +19,7 @@
 .upper_loginSignUpContainer{
 
     padding-right:20px;
-    width:120px;
+    width:140px;
     padding-top: 25px;
     display: flex;
     justify-content: space-between;

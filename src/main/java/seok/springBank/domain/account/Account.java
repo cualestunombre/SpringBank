@@ -19,6 +19,8 @@ public abstract class Account {
     @GeneratedValue
     private Long id;
 
+    private String name;
+
     @JoinColumn(name = "member_id")
     @ManyToOne
     private Member member;
@@ -27,7 +29,7 @@ public abstract class Account {
     @ManyToOne
     private Policy policy;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String accountNumber;
 
     @Column(nullable = false)
