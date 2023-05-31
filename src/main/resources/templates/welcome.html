@@ -15,7 +15,7 @@
 
         .welcome_container {
             margin-bottom: 30px;
-            margin-top: 50px;
+            margin-top: 10px;
             color: white;
             display: grid;
             grid-template-columns: repeat(3, 200px);
@@ -25,9 +25,9 @@
         }
 
         .welcome_col {
-            width: 200px;
-            height: 200px;
-            background-color: #c8e6c9;
+            width: 170px;
+            height: 170px;
+            background-color: rgb(221, 243, 221);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -35,6 +35,8 @@
             text-decoration: none;
             color: white;
             transition: transform 0.3s ease-in-out;
+            opacity: 0;
+            animation: fade-in 0.5s ease-in-out forwards;
         }
 
         .welcome_col:hover {
@@ -43,11 +45,19 @@
         }
 
         .welcome_col:nth-child(2n) {
-            background-color: #a5d6a7;
+            background-color: rgb(189, 230, 189);
         }
 
         .welcome_col:nth-child(3n) {
-            background-color: #81c784;
+            background-color: rgb(157, 216, 157);
+        }
+
+        .welcome_col:nth-child(4n) {
+            background-color: rgb(124, 201, 124);
+        }
+
+        .welcome_col:nth-child(5n) {
+            background-color: rgb(91, 187, 91);
         }
 
         @media (max-width: 600px) {
@@ -56,7 +66,14 @@
             }
         }
 
-
+        @keyframes fade-in {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -66,7 +83,7 @@
         이체
     </a>
     <a href="/account" class="welcome_col">
-        계좌계설
+        계좌개설
     </a>
     <a href="#" class="welcome_col">
         조회
@@ -79,6 +96,15 @@
     </a>
     <a href="#" class="welcome_col">
         적금
+    </a>
+    <a href="#" class="welcome_col">
+        입/출금
+    </a>
+    <a href="#" class="welcome_col">
+        내정보
+    </a>
+    <a href="#" class="welcome_col">
+        공지사항
     </a>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>
