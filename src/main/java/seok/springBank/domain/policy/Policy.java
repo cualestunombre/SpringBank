@@ -17,5 +17,7 @@ public abstract class Policy {
 
     private Double interestRate;
 
+    private String period;
+
 
 }

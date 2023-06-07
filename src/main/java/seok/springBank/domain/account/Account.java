@@ -18,7 +18,7 @@ public abstract class Account {
     @Id
     @GeneratedValue
     private Long id;
-
+    @Column(nullable = false)
     private String name;
 
     @JoinColumn(name = "member_id")

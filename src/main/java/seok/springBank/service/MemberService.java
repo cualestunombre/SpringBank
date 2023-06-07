@@ -8,6 +8,7 @@ import seok.springBank.domain.member.Member;
 import seok.springBank.domain.member.MemberLoginForm;
 import seok.springBank.domain.member.MemberSaveForm;
 import seok.springBank.repository.memberRepository.MemberRepository;
+import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor
 @Transactional(isolation = Isolation.SERIALIZABLE)
 public class MemberService {
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryV2 memberRepository;
 
     public Member signup(MemberSaveForm saveForm){
         Member member = new Member();
@@ -26,7 +27,7 @@ public class MemberService {
         member.setPassword(saveForm.getPassword());
         Member sameEmailMember = memberRepository.findByEmail(saveForm.getEmail());
         if(sameEmailMember == null){
-            return memberRepository.saveMember(member);
+            return memberRepository.save(member);
         }
         return null;
 

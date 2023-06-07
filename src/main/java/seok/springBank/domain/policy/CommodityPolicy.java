@@ -11,7 +11,15 @@ import javax.persistence.Entity;
 @DiscriminatorValue(value = "COMMODITY_POLICY")
 @Entity
 public class CommodityPolicy extends Policy{
-
+    public static CommodityPolicy createCommodityPolicy(PolicySaveForm policySaveForm){
+        if(policySaveForm.getInterestRate()==null || policySaveForm.getPeriod()==null){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        CommodityPolicy commodityPolicy = new CommodityPolicy();
+        commodityPolicy.setPeriod(policySaveForm.getPeriod());
+        commodityPolicy.setInterestRate(policySaveForm.getInterestRate());
+        return commodityPolicy;
+    }
 
 
 }

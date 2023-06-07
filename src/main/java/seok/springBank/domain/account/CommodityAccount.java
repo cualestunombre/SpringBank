@@ -14,12 +14,13 @@ import java.time.LocalDateTime;
 @Setter
 @DiscriminatorValue(value = "COMMODITY_ACCOUNT")
 public class CommodityAccount extends Account{
-    public static CommodityAccount createCommodityAccount(String accountNumber, Policy policy, Member member){
+    public static CommodityAccount createCommodityAccount(String name, String accountNumber, Policy policy, Member member){
         CommodityAccount commodityAccount = new CommodityAccount();
         commodityAccount.setPolicy(policy);
         commodityAccount.setMember(member);
         commodityAccount.setCreatedAt(LocalDateTime.now());
         commodityAccount.setAccountNumber(accountNumber);
+        commodityAccount.setName(name);
         commodityAccount.setBalance(0L);
         return commodityAccount;
     }

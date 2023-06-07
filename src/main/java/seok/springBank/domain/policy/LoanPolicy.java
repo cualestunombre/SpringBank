@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 @Entity
 public class LoanPolicy extends Policy{
 
-    private String period;
+
 
     private String duration;
 

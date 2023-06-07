@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Bank - 계좌개설</title>
+
+    <style>
+        .account_created_container {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* 수직 가운데 정렬 */
+            position: relative;
+            top: 50px;
+        }
+
+        .account_created_information {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 요소 사이 공간을 균등하게 배치 */
+            align-items: flex-start; /* 왼쪽 정렬 */
+            margin-top: 50px;
+            width: 350px;
+            height: 450px;
+            border-radius: 10px; /* 모서리를 살짝 둥글게 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+            padding: 20px; /* 내부 여백 추가 */
+        }
+
+        .account_created_account_number,
+        .account_created_notification {
+            margin-bottom: 20px; /* 요소 사이 간격 조절 */
+        }
+
+        .account_created_information a {
+            width: 100%;
+            display: block;
+            text-align: center; /* 가운데 정렬 */
+            font-weight: 500;
+            text-decoration: none;
+            color: rgb(120, 184, 86);
+            margin-bottom: 10px; /* 링크 사이 간격 조절 */
+        }
+
+        .account_created_title {
+            text-align: center;
+            margin-bottom: 20px; /* 타이틀 아래 여백 조절 */
+            font-weight: 300;
+            font-size: 25px;
+        }
+        .account_created_account_name{
+            margin-top: 25px;
+            font-size: 20px;
+            font-weight: 200;
+        }
+        .account_created_account_number{
+            font-size: 20px;
+            font-weight: 200;
+        }
+        .account_created_warning{
+
+            margin-top: 0px;
+            text-align: center;
+            font-size:25px;
+            font-weight: 300;
+        }
+        .account_created_notification{
+            padding-bottom: 5px;
+            padding-top: 5px ;
+            border-radius: 5px;
+            background-color: rgb(200,200,200,0.5);
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="account_created_container">
+    <div class="account_created_contents">
+        <p th:if="${type eq 'COMMODITY_ACCOUNT' }" class="account_created_title">상품계좌 생성을 완료하였습니다</p>
+        <p th:if="${type eq 'CHECKING_ACCOUNT' }" class="account_created_title">입출금계좌 생성을 완료하였습니다</p>
+        <div class="account_created_information">
+            <div class="account_created_account_name">계좌명 - [[${account.name}]]</div>
+            <div class="account_created_account_number">계좌번호 - [[${account.accountNumber}]]</div>
+            <div class="account_crated_notification">
+                <p class="account_created_warning">주의사항</p>
+                계좌는 절대 타인에게 양도해서는 안되며 모든 법적책임은 본인에게 귀속됩니다
+            </div>
+            <a href="/">계좌 조회하기</a>
+            <br>
+            <a href="/" style="margin-bottom: 25px">홈으로</a>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body>
+</html>
