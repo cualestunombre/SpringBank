@@ -2,6 +2,7 @@ package seok.springBank.domain.foreignCurrency;
 
 import lombok.Getter;
 import lombok.Setter;
+import seok.springBank.domain.BaseEntity;
 import seok.springBank.domain.account.Account;
 import seok.springBank.domain.account.CommodityAccount;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-public class ForeignCurrency {
+public class ForeignCurrency extends BaseEntity {
     @Id
     @GeneratedValue
     @Column(name="foreign_currency_id")

@@ -2,6 +2,7 @@ package seok.springBank.domain.account;
 
 import lombok.Getter;
 import lombok.Setter;
+import seok.springBank.domain.BaseEntity;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.policy.Policy;
 
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @DiscriminatorColumn(name="dtype")
 @Getter
 @Setter
-public abstract class Account {
+public abstract class Account extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;

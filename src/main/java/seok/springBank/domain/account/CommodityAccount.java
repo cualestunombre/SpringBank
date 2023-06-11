@@ -18,6 +18,7 @@ public class CommodityAccount extends Account{
         CommodityAccount commodityAccount = new CommodityAccount();
         commodityAccount.setPolicy(policy);
         commodityAccount.setMember(member);
+        member.getAccounts().add(commodityAccount);
         commodityAccount.setCreatedAt(LocalDateTime.now());
         commodityAccount.setAccountNumber(accountNumber);
         commodityAccount.setName(name);

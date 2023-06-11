@@ -2,6 +2,7 @@ package seok.springBank.domain.transactions;
 
 import lombok.Getter;
 import lombok.Setter;
+import seok.springBank.domain.BaseEntity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public abstract class Transactions {
+public abstract class Transactions extends BaseEntity {
     @Id
     @GeneratedValue
     @Column(name="transactions_id")

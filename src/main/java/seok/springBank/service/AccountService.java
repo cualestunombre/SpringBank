@@ -18,6 +18,8 @@ import seok.springBank.repository.policyRepository.PolicyRepository;
 import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
 import seok.springBank.utility.AccountNumberGenerator;
 
+import java.util.List;
+
 @Transactional(isolation = Isolation.SERIALIZABLE)
 @RequiredArgsConstructor
 @Service
@@ -26,6 +28,10 @@ public class AccountService {
     private final MemberRepositoryV2 memberRepository;
     private final PolicyRepositoryV2 policyRepository;
 
+
+    public List<CheckingAccount> getCheckingAccounts(Long memberId){
+        return accountRepository.findCheckingAccountById(memberId);
+    }
 
     public Account makeAccount(AccountSaveForm accountSaveForm, Long memberId) throws AccountMoreThanFive{
 

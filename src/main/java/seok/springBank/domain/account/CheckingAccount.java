@@ -18,6 +18,7 @@ public class CheckingAccount extends Account {
         CheckingAccount checkingAccount = new CheckingAccount();
         checkingAccount.setPolicy(policy);
         checkingAccount.setMember(member);
+        member.getAccounts().add(checkingAccount);
         checkingAccount.setCreatedAt(LocalDateTime.now());
         checkingAccount.setAccountNumber(accountNumber);
         checkingAccount.setBalance(0L);
