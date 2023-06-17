@@ -76,7 +76,20 @@
     .deposit_form_buttons button {
       width: 30%;
       margin-bottom: 10px;
+      border-radius: 10px; /* 모서리를 살짝 둥글게 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+      background-color: white;
+      border: none;
     }
+    #submit{
+      background-color:rgb(86,143,77);
+      font-weight: 300;
+      border: none;
+      border-radius: 3px;
+      color:white;
+
+    }
+
   </style>
 </head>
 <body>
@@ -85,10 +98,10 @@
   <div class="deposit_form_wrapper">
     <p class="deposit_form_title">입금</p>
     <div class="deposit_form_box">
-      <p class="deposit_form_account_number">계좌 번호 - [[${account.accountNumber}]]</p>
+      <div class="deposit_form_account_number">계좌 번호 - <span>[[${account.accountNumber}]]</span></div>
       <form class="deposit_form_account_form">
         <p class="deposit_form_account_label">입금액</p>
-        <input class="deposit_form_account_input" placeholder="입금액을 입력해 주세요" oninput="formatNumber(event)"  maxlength="11">
+        <input class="deposit_form_account_input" placeholder="입금액을 입력해 주세요" oninput="formatNumber(event)"  maxlength="11" >
         <div class="deposit_form_buttons">
           <button type="button" onclick="appendValue('1')">1</button>
           <button type="button" onclick="appendValue('2')">2</button>
@@ -102,12 +115,14 @@
           <button type="button" onclick="appendValue('0')">0</button>
           <button type="button" onclick="deleteLastChar()">&#9003;</button>
         </div>
-        <button type="submit">입금</button>
+        <button id="submit"type="button" onclick="handleDeposit(event)">입금</button>
       </form>
     </div>
   </div>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
   function formatNumber(event) {
     // 입력된 값에서 숫자와 소수점만 추출
@@ -121,6 +136,54 @@
 
     // 입력된 값 업데이트
     event.target.value = formattedInput;
+
+  }
+  function parseMoney(value) {
+    const array = [];
+    for (const char of value) {
+      if (char !== ",") {
+        array.push(char);
+      }
+    }
+
+    return array.join('');
+  }
+  function handleDeposit(event){
+    let amount = document.querySelector(".deposit_form_account_input").value;
+    let accountNumber = document.querySelector(".deposit_form_account_number span").innerText;
+    const amountToSend = parseMoney(amount);
+    if (amount=='0' || amount==""){
+      Swal.fire({
+        icon: 'error',
+        title: '고객님!',
+        text: '입금하고자하는 금액을 입력해주세요',
+      })
+    }
+    else{
+      Swal.fire({
+        title: `고객님`,
+        text: `${amount}원을 입금 하시겠습니까?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'rgb(86,143,77)',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '확인',
+        cancelButtonText:"취소"
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+            const data = await axios.post("/deposit",{"accountNumber":accountNumber,"balance":amountToSend});
+            if(data.headers['content-type']=="text/html;charset=UTF-8"){
+                location.href = "http://localhost:8080/auth/login";
+                return ;
+            }
+            location.href = "http://localhost:8080/deposit_success";
+
+
+        }
+      }).catch(err=>{
+        location.href = "http://localhost:8080/error";
+      })
+    }
 
   }
 

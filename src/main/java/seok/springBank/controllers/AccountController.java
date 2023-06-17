@@ -9,10 +9,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import seok.springBank.config.argumentresolver.Login;
 import seok.springBank.domain.account.Account;
 import seok.springBank.domain.account.AccountSaveForm;
 import seok.springBank.domain.account.CheckingAccount;
+import seok.springBank.domain.account.CommodityAccount;
 import seok.springBank.domain.member.Member;
 import seok.springBank.exceptions.account.AccountMoreThanFive;
 import seok.springBank.service.AccountService;
@@ -20,6 +22,8 @@ import seok.springBank.service.AccountService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 @Controller
 @Slf4j
@@ -35,12 +39,32 @@ public class AccountController {
         model.addAttribute("moreThanFive",false);
         return "accountOpening";
     }
+    @GetMapping("/account/created")
+    public String createdAccount(@Login Member loginMember, Model model, @RequestParam("type") String type, @RequestParam("name")String name
+    ,@RequestParam("number")String number){
+        name = URLDecoder.decode(name);
+        Account account;
+        accountService.isValidCreatedAccount(type,name,number,loginMember.getId());
 
+        if (type=="CHECKING_ACCOUNT"){
+            account = new CheckingAccount();
+        }
+        else{
+            account = new CommodityAccount();
+        }
+
+        account.setAccountNumber(number);
+        account.setName(name);
+        model.addAttribute("account",account);
+        model.addAttribute("type",type);
+        return "accountCreated";
+    }
     @PostMapping("/account")
     public String createAccount(@Validated @ModelAttribute AccountSaveForm accountSaveForm, BindingResult bindingResult,HttpServletRequest req, HttpServletResponse res, @Login Member loginMember
     , Model model){
         //ModelAttribute정의
         model.addAttribute("loginMember",loginMember);
+        String type = "";
 
         setPolicy(accountSaveForm);
 
@@ -52,14 +76,14 @@ public class AccountController {
 
         try{
             Account account = accountService.makeAccount(accountSaveForm,loginMember.getId());
-            model.addAttribute("account",account);
             if(account instanceof CheckingAccount){
-                model.addAttribute("type","CHECKING_ACCOUNT");
+                type = "CHECKING_ACCOUNT";
+
             }
             else{
-                model.addAttribute("type","COMMODITY_ACCOUNT");
+               type = "COMMODITY_ACCOUNT";
             }
-            return "accountCreated";
+            return "redirect:/account/created"+"?type="+type+"&name="+ URLEncoder.encode(account.getName())+"&number="+account.getAccountNumber();
 
         }
         // 비지니스 에러 처리

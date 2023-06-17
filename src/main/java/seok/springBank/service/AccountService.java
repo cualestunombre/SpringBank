@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import seok.springBank.domain.account.*;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.policy.CheckingPolicy;
@@ -19,6 +20,7 @@ import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
 import seok.springBank.utility.AccountNumberGenerator;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(isolation = Isolation.SERIALIZABLE)
 @RequiredArgsConstructor
@@ -28,6 +30,17 @@ public class AccountService {
     private final MemberRepositoryV2 memberRepository;
     private final PolicyRepositoryV2 policyRepository;
 
+    public void isValidCreatedAccount(String type, String name, String number,Long memberId){
+        System.out.println(type);
+        if (!StringUtils.hasText(type)|| !StringUtils.hasText(name) || !StringUtils.hasText(number)
+        || !(type.equals("COMMODITY_ACCOUNT" )|| type.equals("CHECKING_ACCOUNT")) ){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+
+        Optional<Account> account = accountRepository.isValidCreatedAccount(memberId,name,number);
+        account.orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+
+    }
 
     public List<CheckingAccount> getCheckingAccounts(Long memberId){
         return accountRepository.findCheckingAccountById(memberId);

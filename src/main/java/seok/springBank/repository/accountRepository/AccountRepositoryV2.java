@@ -8,6 +8,7 @@ import seok.springBank.domain.account.CheckingAccount;
 import seok.springBank.domain.member.Member;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AccountRepositoryV2 extends JpaRepository<Account,Long> {
     List<Account> findByAccountNumber(String accountNumber);
@@ -27,5 +28,10 @@ public interface AccountRepositoryV2 extends JpaRepository<Account,Long> {
     @Query("select a from Account a join a.member m where m.id=:memberId and a.id=:accountId")
     Account isMyAccount(@Param("memberId")Long memberId,@Param("accountId")Long accountId);
 
+    @Query("select a from Account  a join a.member m where m.id=:memberId and a.name=:name" +
+            " and a.accountNumber=:number")
+    Optional<Account> isValidCreatedAccount(@Param("memberId")Long memberId,@Param("name") String name
+    , @Param("number")String number);
 
+    Optional<Account> findByAccountNumberAndMember(String accountNumber, Member member);
 }
