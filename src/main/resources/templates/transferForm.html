@@ -13,14 +13,136 @@
             flex-direction: column;
             min-height: 100vh;
         }
+        .transfer_form_container{
+            display: flex;
+            justify-content: center;
+        }
+        .transfer_form_box{
+            margin-top: 71px;
+            align-items: flex-start; /* 왼쪽 정렬 */
+            width: 350px;
+            height: 370px;
+            border-radius: 10px; /* 모서리를 살짝 둥글게 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+            padding: 20px; /* 내부 여백 추가 */
+            overflow: auto;
+        }
+        .transfer_form_account_number {
+            text-align: left;
+            text-decoration: underline;
+            font-weight: 200;
+            color: rgb(80, 80, 80);
+        }
+
+        .transfer_form_account_input {
+            display: block;
+            width: 100%;
+            margin: 0px;
+            border: none;
+            background-color: rgb(200, 200, 200, 0.1);
+            border-radius: 3px;
+            height: 40px;
+            padding: 5px;
+            text-align: right;
+            position: relative;
+        }
+        .transfer_form_account_input::after {
+            content: attr(data-currency);
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 12px;
+            color: rgb(80, 80, 80);
+        }
+
+        .transfer_form_buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .transfer_form_buttons button {
+            width: 30%;
+            margin-bottom: 10px;
+            border-radius: 10px; /* 모서리를 살짝 둥글게 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+            background-color: white;
+            border: none;
+        }
+        #submit{
+            background-color:rgb(86,143,77);
+            font-weight: 300;
+            border: none;
+            border-radius: 3px;
+            color:white;
+
+        }
+        .transfer_form_target_account_number{
+            margin-top: 20px;
+        }
+        .transfer_form_account_form{
+            text-align: center;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
     </style>
 </head>
 <body>
 <th:block th:replace="fragment/upperBar :: upper"></th:block>
-
+<div class="transfer_form_container">
+    <div class="transfer_form_box">
+            <div class="transfer_form_account_number"> 계좌번호 - <span>[[${account.accountNumber}]]</span></div>
+            <div class="transfer_form_target_account_number">
+                <form class="transfer_form_account_form">
+                    <input  type="number" class="transfer_form_account_input" placeholder="보내고자 하는 계좌번호를 입력해주세요" oninput="limit(event)">
+                    <div class="transfer_form_buttons">
+                        <button type="button" onclick="appendValue('1')">1</button>
+                        <button type="button" onclick="appendValue('2')">2</button>
+                        <button type="button" onclick="appendValue('3')">3</button>
+                        <button type="button" onclick="appendValue('4')">4</button>
+                        <button type="button" onclick="appendValue('5')">5</button>
+                        <button type="button" onclick="appendValue('6')">6</button>
+                        <button type="button" onclick="appendValue('7')">7</button>
+                        <button type="button" onclick="appendValue('8')">8</button>
+                        <button type="button" onclick="appendValue('9')">9</button>
+                        <button type="button" onclick="appendValue('0')">0</button>
+                        <button type="button" onclick="deleteLastChar()">&#9003;</button>
+                    </div>
+                    <button id="submit" type="button" onclick="checkAccountNumber(event)">확인</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <th:block th:replace="fragment/footer :: footer"></th:block>
+<script>
+    function checkAccountNumber(event){
 
+    }
+    function limit(event){
+        const input = document.querySelector('.transfer_form_account_input')
+        if(input.value.length>=16){
+            input.value = input.value.substring(0,15);
+        }
+    }
+    function appendValue(value) {
+        const input = document.querySelector('.transfer_form_account_input');
+        if(input.value.length>=15){
+            return;
+        }
+        input.value += value;
+
+    }
+
+    function deleteLastChar() {
+        const input = document.querySelector('.transfer_form_account_input');
+        input.value = input.value.slice(0, -1);
+    }
+</script>
 
 </body>
 </html>

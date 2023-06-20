@@ -37,6 +37,9 @@ public class TransferController {
         if (accountRepositoryV2.isMyAccount(loginMember.getId(),id)==null){
             throw new IllegalArgumentException("Invalid Access");
         }
+        CheckingAccount checkingAccount = accountService.getCheckingAccountById(id);
+        model.addAttribute("account",checkingAccount);
+        model.addAttribute("loginMember",loginMember);
         return "transferForm";
     }
 

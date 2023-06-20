@@ -11,15 +11,14 @@ import seok.springBank.domain.policy.CheckingPolicy;
 import seok.springBank.domain.policy.CommodityPolicy;
 import seok.springBank.domain.policy.Policy;
 import seok.springBank.exceptions.account.AccountMoreThanFive;
-import seok.springBank.repository.accountRepository.AccountRepository;
+import seok.springBank.exceptions.account.MyAccountException;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
-import seok.springBank.repository.memberRepository.MemberRepository;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
-import seok.springBank.repository.policyRepository.PolicyRepository;
 import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
 import seok.springBank.utility.AccountNumberGenerator;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -40,6 +39,30 @@ public class AccountService {
         Optional<Account> account = accountRepository.isValidCreatedAccount(memberId,name,number);
         account.orElseThrow(()->new IllegalArgumentException("Invalid Access"));
 
+    }
+    public CheckingAccount getCheckingAccountByAccountNumber(String accountNumber,Long id){
+       List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
+       Account account=null;
+       if (accounts.size()!=0){
+           account = accounts.get(0);
+       }
+       if(account!=null && account instanceof CheckingAccount && account.getMember().getId()!=id){
+           return (CheckingAccount) account;
+       }
+       else if(account!=null && account instanceof CheckingAccount && account.getMember().getId()==id){
+           throw new MyAccountException("Can't transfer to your own account");
+       }
+       throw new NoSuchElementException("Not Found");
+    }
+
+    public CheckingAccount getCheckingAccountById(Long id){
+        Account account = accountRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        if (account instanceof CheckingAccount){
+            return (CheckingAccount) account;
+        }
+        else{
+            throw new IllegalArgumentException("Invalid Access");
+        }
     }
 
     public List<CheckingAccount> getCheckingAccounts(Long memberId){

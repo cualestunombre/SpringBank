@@ -23,10 +23,10 @@ public abstract class Transactions extends BaseEntity {
     @Column(nullable = false)
     private Long amount;
 
-    LocalDateTime createdAt;
-
     @Column(nullable = false)
     private String transactionsName;
+
+
 
 
 

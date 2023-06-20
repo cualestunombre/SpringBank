@@ -6,15 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import seok.springBank.config.argumentresolver.Login;
-import seok.springBank.domain.account.Account;
-import seok.springBank.domain.account.AccountSaveForm;
-import seok.springBank.domain.account.CheckingAccount;
-import seok.springBank.domain.account.CommodityAccount;
+import seok.springBank.domain.account.*;
 import seok.springBank.domain.member.Member;
 import seok.springBank.exceptions.account.AccountMoreThanFive;
 import seok.springBank.service.AccountService;
@@ -30,6 +24,18 @@ import java.net.URLEncoder;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
+
+    @PostMapping("/account/check")
+    @ResponseBody
+
+    public AccountCheckForm checkAccount(HttpServletRequest req, HttpServletResponse res, @Login Member loginMember,
+                                         @RequestParam String accountNumber){
+        CheckingAccount checkingAccount = accountService.getCheckingAccountByAccountNumber(accountNumber, loginMember.getId());
+        AccountCheckForm accountCheckForm = AccountCheckForm.makeAccountCheckForm(checkingAccount);
+        return accountCheckForm;
+    }
+
+
 
     @GetMapping("/account")
     public String getCreateAccount(HttpServletRequest req, HttpServletResponse res,@Login Member loginMember

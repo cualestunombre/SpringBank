@@ -18,5 +18,13 @@ public class DepositTransactions  extends Transactions{
     @ManyToOne
     Account toAccount ;
 
+    public static DepositTransactions createSavingsTransactions(Account toAccount,Long amount,String transactionName){
+        DepositTransactions depositTransactions = new DepositTransactions();
+        depositTransactions.setAmount(amount);
+        depositTransactions.setTransactionsName(transactionName);
+        depositTransactions.setToAccount(toAccount);
+        return depositTransactions;
+
+    }
 
 }

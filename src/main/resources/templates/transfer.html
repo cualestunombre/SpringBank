@@ -95,7 +95,8 @@
                              [[${account.name}]]
                         </p>
                         <p class="transfer_accounts_lists_account_balance">
-                            [[${account.balance}]]원
+                            <span th:if="${account.balance >= 1000 }" >[[${#numbers.formatInteger(account.balance, 3, 'COMMA') + '원'}]]</span>
+                            <span th:if="${account.balance < 1000}">[[${account.balance}]]원</span>
                         </p>
                       </div>
                       <a th:href="@{/transfer/{accountId}(accountId=${account.id})}"> 이체 </a>
