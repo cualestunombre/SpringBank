@@ -11,8 +11,11 @@ import seok.springBank.domain.policy.CheckingPolicy;
 import seok.springBank.domain.policy.CommodityPolicy;
 import seok.springBank.domain.policy.Policy;
 import seok.springBank.exceptions.account.AccountMoreThanFive;
+import seok.springBank.exceptions.account.BalanceNotEnoughException;
 import seok.springBank.exceptions.account.MyAccountException;
+import seok.springBank.exceptions.account.NotACheckingAccountException;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
+import seok.springBank.repository.memberRepository.MemberRepository;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
 import seok.springBank.utility.AccountNumberGenerator;
@@ -29,6 +32,35 @@ public class AccountService {
     private final MemberRepositoryV2 memberRepository;
     private final PolicyRepositoryV2 policyRepository;
 
+    public void isCheckingAccount(String accountNumber){
+        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
+        if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");
+        else{
+            if (accounts.get(0) instanceof CheckingAccount) return;
+            else{
+                throw new IllegalArgumentException("Invalid Access");
+            }
+        }
+    }
+    public void isMoneyEnough(String accountNumber,Long amount){
+        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
+        if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");
+        else{
+            if (accounts.get(0).getBalance()>=amount) return;
+            else{
+                throw new BalanceNotEnoughException("Balance is not enough");
+            }
+        }
+    }
+    public void isMyAccount(String accountNumber,Long memberId){
+        Member findMember = memberRepository.findById(memberId).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
+        if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");
+        else{
+            if (findMember==accounts.get(0).getMember()) return ;
+            else throw new IllegalArgumentException("Invalid Access");
+        }
+    }
     public void isValidCreatedAccount(String type, String name, String number,Long memberId){
         System.out.println(type);
         if (!StringUtils.hasText(type)|| !StringUtils.hasText(name) || !StringUtils.hasText(number)
@@ -40,18 +72,23 @@ public class AccountService {
         account.orElseThrow(()->new IllegalArgumentException("Invalid Access"));
 
     }
-    public CheckingAccount getCheckingAccountByAccountNumber(String accountNumber,Long id){
-       List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
+    public CheckingAccount getCheckingAccountByAccountNumber(String targetAccountNumber,String myAccountNumber){
+       List<Account> accounts = accountRepository.findByAccountNumber(targetAccountNumber);
+
        Account account=null;
        if (accounts.size()!=0){
            account = accounts.get(0);
        }
-       if(account!=null && account instanceof CheckingAccount && account.getMember().getId()!=id){
+       if(account!=null && account instanceof CheckingAccount && !account.getAccountNumber().equals(myAccountNumber)){
            return (CheckingAccount) account;
        }
-       else if(account!=null && account instanceof CheckingAccount && account.getMember().getId()==id){
+       else if(account!=null && account instanceof CheckingAccount && account.getAccountNumber().equals(myAccountNumber)){
            throw new MyAccountException("Can't transfer to your own account");
        }
+       else if(account!=null && ! (account instanceof CheckingAccount)){
+           throw new NotACheckingAccountException("Only Checking Account Available");
+       }
+
        throw new NoSuchElementException("Not Found");
     }
 
@@ -77,7 +114,7 @@ public class AccountService {
         String dtype = accountSaveForm.getDtype();
         String accountNumber;
         String name = accountSaveForm.getName();
-        System.out.println(dtype);
+
 
        /*
         적금계좌 (00), 입출금계좌(01), 상품계좌(10), 대출계좌(11)
@@ -125,7 +162,7 @@ public class AccountService {
     // 상품 계좌나 입출금 계좌가 5개 이상이면 예외를 발생시킴
     private void checkMoreThan5(Member member ,String dtype) throws AccountMoreThanFive{
         Long count = 0L;
-        System.out.println(member.getId());
+
         if (dtype.equals("CHECKING_ACCOUNT")){
             count = accountRepository.countChecking(member);
 
@@ -134,7 +171,7 @@ public class AccountService {
             count = accountRepository.countCommodity(member);
 
         }
-        System.out.println(count);
+
         if (count>=5L){
             throw new AccountMoreThanFive();
         }

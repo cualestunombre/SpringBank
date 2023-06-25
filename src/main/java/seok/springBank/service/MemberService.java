@@ -26,9 +26,13 @@ public class MemberService {
         member.setName(saveForm.getName());
         member.setPassword(saveForm.getPassword());
         Member sameEmailMember = memberRepository.findByEmail(saveForm.getEmail());
+        System.out.println (member.getEmail());
         if(sameEmailMember == null){
-            return memberRepository.save(member);
+            System.out.println("wth");
+            memberRepository.save(member);
+            return member;
         }
+        System.out.println("good");
         return null;
 
     }

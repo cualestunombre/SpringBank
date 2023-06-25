@@ -29,10 +29,9 @@ public class AccountController {
     @ResponseBody
 
     public AccountCheckForm checkAccount(HttpServletRequest req, HttpServletResponse res, @Login Member loginMember,
-                                         @RequestParam String accountNumber){
-        CheckingAccount checkingAccount = accountService.getCheckingAccountByAccountNumber(accountNumber, loginMember.getId());
-        AccountCheckForm accountCheckForm = AccountCheckForm.makeAccountCheckForm(checkingAccount);
-        return accountCheckForm;
+                                         @RequestBody AccountNumberForm accountNumber){
+        CheckingAccount checkingAccount = accountService.getCheckingAccountByAccountNumber(accountNumber.getTargetAccountNumber(), accountNumber.getMyAccountNumber());
+        return AccountCheckForm.makeAccountCheckForm(checkingAccount);
     }
 
 
@@ -81,7 +80,9 @@ public class AccountController {
         }
 
         try{
+            System.out.println("point1");
             Account account = accountService.makeAccount(accountSaveForm,loginMember.getId());
+            System.out.println("point2");
             if(account instanceof CheckingAccount){
                 type = "CHECKING_ACCOUNT";
 
@@ -103,10 +104,10 @@ public class AccountController {
     //추후에 다른 방법 강구
     private void setPolicy(AccountSaveForm accountSaveForm){
         if (accountSaveForm.getDtype().equals("CHECKING_ACCOUNT")){
-            accountSaveForm.setPolicyId(2L);
+            accountSaveForm.setPolicyId(1L);
         }
         else{
-            accountSaveForm.setPolicyId(3L);
+            accountSaveForm.setPolicyId(2L);
         }
 
     }

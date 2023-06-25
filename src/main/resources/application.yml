@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/springbank
+    username:
+  jpa:
+    hibernate:
+      ddl-auto: create
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  mail:
+    # Google smtp server 사용
+    host: smtp.gmail.com
+    port: 587
+    username: springbank0625@gmail.com
+    password: kmifvgcjnwatbfgk
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+server:
+  error:
+    include-message: always
+
+

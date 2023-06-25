@@ -6,11 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import seok.springBank.controllers.AccountController;
 import seok.springBank.domain.etcForms.ErrorResult;
 import seok.springBank.exceptions.account.MyAccountException;
+import seok.springBank.exceptions.account.NotACheckingAccountException;
 
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice(assignableTypes = {AccountController.class})
-public class ExControlAdvice {
+public class AccountControlAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
     @RequestMapping(headers = "Accept=application/json")
@@ -25,4 +26,10 @@ public class ExControlAdvice {
         return new ErrorResult(e.getMessage(),400);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NotACheckingAccountException.class)
+    @RequestMapping(headers = "Accept=application/json")
+    public ErrorResult notACheckingAccount(NotACheckingAccountException e){
+        return new ErrorResult(e.getMessage(),401);
+    }
 }

@@ -116,8 +116,49 @@
             flex-direction: column;
 
         }
+        .signup_flex_row{
+
+            align-items: center;
+            display: flex;
+            width: 400px;
+            height: 40px;
+            justify-content: space-between;
+        }
         body{
             overflow-y: auto;
+        }
+        #signup_token{
+            margin-top: 5px;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            width: 50px;
+            height: 30px;
+            font-size: 11px;
+            background-color: rgb(120,184,86);
+
+        }
+        #signup_token_input{
+            margin-left: 5px;
+            margin-top: 5px;
+            border: 1px solid rgb(120,184,86);
+            width: 200px;
+            height:40px;
+            font-size:15px;
+        }
+        .signup_box_auth{
+            margin-top: 30px;
+            width:400px;
+        }
+        #time_left{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width:120px;
+
+            color:red;
+            font-size: 11px;
+            height: 40px;
         }
 
         /* 나머지 스타일 */
@@ -143,6 +184,16 @@
             <input type="password" id="password" th:field="*{password}" placeholder="영문 대소문자 및 숫자를 포함하여 비밀번호를 입력해주세요">
             <div class="signup_field-error" th:errors="*{password}"> </div>
         </div>
+        <div class="signup_box_auth signup_flex">
+            <label for="password">인증번호</label>
+            <div class="signup_flex_row">
+                <input id ="signup_token_input" type="password"  th:field="*{emailToken}" placeholder="인증번호를 입력해주세요">
+                <button id="signup_token" type="button">발급</button>
+                <div id="time_left" onclick="getCode(event)"></div>
+            </div>
+
+            <div class="signup_field-error" th:errors="*{emailToken}"> </div>
+        </div>
 
         <div class="signup_rule">
             <h3>이용약관</h3>
@@ -161,5 +212,10 @@
     </form>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>
+<script>
+    function getCode(event){
+        
+    }
+</script>
 </body>
 </html>

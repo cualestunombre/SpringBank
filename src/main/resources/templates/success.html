@@ -13,16 +13,16 @@
       flex-direction: column;
       min-height: 100vh;
     }
-    .deposit_success_container{
+    .success_container{
       text-align: center;
     }
-    .deposit_success_title{
+    .success_title{
       margin-top: 80px;
       font-size: 25px;
       text-align: center;
       font-weight: 300;
     }
-    .deposit_success_link{
+    .success_link{
       margin-top: 20px;
       font-size: 18px;
       font-weight: 500;
@@ -35,9 +35,9 @@
 </head>
 <body>
 <th:block th:replace="fragment/upperBar :: upper"></th:block>
-<div class="deposit_success_container">
-  <div class="deposit_success_title">입금을 성공했습니다</div>
-  <a href="/" class="deposit_success_link">입금내역 조회하기</a>
+<div class="success_container">
+  <div class="success_title">[[${object}]](을/를) 성공했습니다</div>
+  <a href="/" class="success_link">[[${object}]]내역 조회하기</a>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>
 

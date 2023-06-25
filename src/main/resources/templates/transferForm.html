@@ -7,7 +7,9 @@
     <link rel="stylesheet" th:href="@{../../css/upper.css}">
     <link rel="stylesheet" th:href="@{../../css/footer.css}">
     <style>
-
+        .no_show{
+            display: none;
+        }
         body {
             display: flex;
             flex-direction: column;
@@ -21,7 +23,7 @@
             margin-top: 71px;
             align-items: flex-start; /* 왼쪽 정렬 */
             width: 350px;
-            height: 370px;
+            height: 400px;
             border-radius: 10px; /* 모서리를 살짝 둥글게 */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
             padding: 20px; /* 내부 여백 추가 */
@@ -34,7 +36,7 @@
             color: rgb(80, 80, 80);
         }
 
-        .transfer_form_account_input {
+        input {
             display: block;
             width: 100%;
             margin: 0px;
@@ -46,7 +48,7 @@
             text-align: right;
             position: relative;
         }
-        .transfer_form_account_input::after {
+        input::after {
             content: attr(data-currency);
             position: absolute;
             right: 10px;
@@ -59,7 +61,7 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-top: 30px;
         }
         .transfer_form_buttons button {
             width: 30%;
@@ -69,13 +71,20 @@
             background-color: white;
             border: none;
         }
-        #submit{
+        .submit{
             background-color:rgb(86,143,77);
             font-weight: 300;
             border: none;
             border-radius: 3px;
             color:white;
 
+        }
+        #back{
+            background-color:rgb(86,143,77);
+            font-weight: 300;
+            border: none;
+            border-radius: 3px;
+            color:white;
         }
         .transfer_form_target_account_number{
             margin-top: 20px;
@@ -89,12 +98,35 @@
             margin: 0;
         }
 
+        .transfer_form_transfer_balance{
+            margin-top:10px;
+
+
+        }
+        .transfer_form_transfer_balance span:nth-child(1){
+            font-weight: 300;
+            font-size: 20px;
+        }
+        .transfer_form_transfer_balance span:nth-child(2){
+            font-weight: 300;
+        }
+        .transfer_form_transfer_amount span:nth-child(1){
+            font-size: 25px;
+
+            color:rgb(86,143,77,0.5);
+        }
+        .transfer_form_transfer_amount{
+            margin-top: 10px;
+        }
+        .button_wrapper{
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 <th:block th:replace="fragment/upperBar :: upper"></th:block>
-<div class="transfer_form_container">
-    <div class="transfer_form_box">
+<div  class="transfer_form_container">
+    <div id="box1" class="transfer_form_box">
             <div class="transfer_form_account_number"> 계좌번호 - <span>[[${account.accountNumber}]]</span></div>
             <div class="transfer_form_target_account_number">
                 <form class="transfer_form_account_form">
@@ -112,36 +144,221 @@
                         <button type="button" onclick="appendValue('0')">0</button>
                         <button type="button" onclick="deleteLastChar()">&#9003;</button>
                     </div>
-                    <button id="submit" type="button" onclick="checkAccountNumber(event)">확인</button>
+                    <button class="submit" type="button" onclick="checkAccountNumber(event)">확인</button>
                 </form>
             </div>
+    </div>
+    <div id="box2" class="transfer_form_box no_show">
+        <button id="back" onclick="moveBack(event)">뒤로</button>
+        <div class="transfer_form_transfer_balance">
+            <span>잔액</span>
+            <span th:if="${account.balance >= 1000 }" ><span th:id="myBalance">[[${#numbers.formatInteger(account.balance, 3, 'COMMA')}]]</span>원</span>
+            <span th:if="${account.balance < 1000}"><span th:id="myBalance">[[${account.balance}]]원</span></span>
+        </div>
+        <div class="transfer_form_transfer_amount">
+            <span>얼마를 이체하실 건가요?</span>
+            <input class="transfer_form_transfer_amount_input" type="text" placeholder="이체하고자 하는 금액을 입력해주세요" maxlength="11" oninput="formatNumber(event)">
+            <div class="transfer_form_buttons">
+                <button type="button" onclick="appendValueFor('1')">1</button>
+                <button type="button" onclick="appendValueFor('2')">2</button>
+                <button type="button" onclick="appendValueFor('3')">3</button>
+                <button type="button" onclick="appendValueFor('4')">4</button>
+                <button type="button" onclick="appendValueFor('5')">5</button>
+                <button type="button" onclick="appendValueFor('6')">6</button>
+                <button type="button" onclick="appendValueFor('7')">7</button>
+                <button type="button" onclick="appendValueFor('8')">8</button>
+                <button type="button" onclick="appendValueFor('9')">9</button>
+                <button type="button" onclick="appendValueFor('0')">0</button>
+                <button type="button" onclick="deleteLastCharFor()">&#9003;</button>
+            </div>
+            <div class="button_wrapper">
+                <button class="submit" type="button" onclick="handleTransfer(event)">이체</button>
+            </div>
+
         </div>
     </div>
 </div>
+
+
+=
 <th:block th:replace="fragment/footer :: footer"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    function checkAccountNumber(event){
+    function moveBack(event){
+        document.querySelector("#box1").classList.remove("no_show");
+        document.querySelector("#box2").classList.add("no_show");
+        document.querySelector(".transfer_form_account_input").value=null;
+
+    }
+    function parseMoney(value) {
+        const array = [];
+        for (const char of value) {
+            if (char !== ",") {
+                array.push(char);
+            }
+        }
+
+        return array.join('');
+    }
+    async function handleTransfer(event) {
+        const targetAccountNumber = document.querySelector(".transfer_form_account_input").value;
+        const myAccountNumber = document.querySelector(".transfer_form_account_number span").innerText;
+        let amount = document.querySelector(".transfer_form_transfer_amount_input").value;
+        let myMoney = document.querySelector("#myBalance").innerText;
+        amount = parseMoney(amount);
+        myMoney = parseMoney(myMoney);
+        if (parseInt(amount) == 0) {
+            Swal.fire({
+                icon: 'error',
+                title: '고객님',
+                text: '금액을 입력해주세요!',
+
+            });
+        } else if (parseInt(amount) > parseInt(myMoney)){
+            Swal.fire({
+                icon: 'error',
+                title: '고객님',
+                text: '잔액이 부족합니다!',
+
+            });
+        }
+        else{
+            const {data:{name,accountNumber}} = await axios.post("http://localhost:8080/account/check",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber});
+            Swal.fire({
+                title:  `해당 계좌로 ${Number(amount).toLocaleString('en-US')}원을 이체하시겠어요?`,
+                text:  `성명 ${name} 계좌번호 ${accountNumber}`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'rgb(86,143,77)',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText:"취소"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try{
+                        const {data:{code}} = await axios.post("http://localhost:8080/transfer",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber,"amount":amount});
+                        location.href = `http://localhost:8080/success/${encodeURI("이체")}`;
+
+                    }catch(err){
+                        const {response:{data:{code}},request:{status}} = err;
+                        location.href = "http://localhost:8080/error";
+
+
+                    }
+                }
+            });
+        }
+    }
+
+    async function checkAccountNumber(event){
+        const targetAccountNumber = document.querySelector(".transfer_form_account_input").value;
+        const myAccountNumber = document.querySelector(".transfer_form_account_number span").innerText;
+        try{
+
+            const {data:{name,accountNumber}} = await axios.post("http://localhost:8080/account/check",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber});
+            Swal.fire({
+                title: '보내고자 하시는 계좌가 맞나요?',
+                text:  `성명 ${name} 계좌번호 ${accountNumber}`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'rgb(86,143,77)',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '확인',
+                cancelButtonText:"취소"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.querySelector("#box1").classList.add("no_show");
+                    document.querySelector("#box2").classList.remove("no_show");
+                }
+            });
+
+        }catch(err){
+
+            const {response:{data},request:{status}} = err;
+
+            if (status==404){
+                Swal.fire({
+                    icon: 'error',
+                    title: '고객님',
+                    text: '해당계좌는 없는 계좌입니다!',
+                });
+            }
+            else if(status==400 && data.code==400){
+                Swal.fire({
+                    icon: 'error',
+                    title: '고객님',
+                    text: '출금계좌로 입금할 수 없습니다!',
+                });
+            }
+            else if(status==400 && data.code==401){
+                Swal.fire({
+                    icon: 'error',
+                    title: '고객님',
+                    text: '입출금 계좌로만 송금할 수 있습니다!',
+                });
+            }
+            else{
+                location.href="http://localhost:8080/error"
+            }
+
+        }
+
+
 
     }
     function limit(event){
-        const input = document.querySelector('.transfer_form_account_input')
-        if(input.value.length>=16){
-            input.value = input.value.substring(0,15);
-        }
+        document.querySelectorAll('.transfer_form_account_input').forEach(ele=>{
+            if(ele.value.length>=16){
+                ele.value = ele.value.substring(0,15);
+            }
+        });
+
     }
     function appendValue(value) {
-        const input = document.querySelector('.transfer_form_account_input');
-        if(input.value.length>=15){
-            return;
-        }
-        input.value += value;
+        document.querySelectorAll('.transfer_form_account_input').forEach(ele=>{
+            if(ele.value.length>=15){
+                return;
+            }
+            ele.value += value;
+        });
+
 
     }
 
     function deleteLastChar() {
-        const input = document.querySelector('.transfer_form_account_input');
-        input.value = input.value.slice(0, -1);
+        document.querySelectorAll('.transfer_form_account_input').forEach(ele=>{
+            ele.value = ele.value.slice(0, -1);
+        });
+
     }
+
+    function formatNumber(event) {
+        // 입력된 값에서 숫자와 소수점만 추출
+        let input = event.target.value;
+        let cleanedInput = input.replace(/[^0-9.]/g, '');
+
+        // 숫자를 천 단위마다 콤마로 구분하여 포맷팅
+        let formattedInput = Number(cleanedInput).toLocaleString('en-US');
+
+        // 입력된 값 업데이트
+        event.target.value = formattedInput;
+    }
+    function appendValueFor(value) {
+        const input = document.querySelector('.transfer_form_transfer_amount_input');
+        if(input.value.length>=11){
+            return;
+        }
+        input.value += value;
+        formatNumber({ target: input });
+    }
+
+    function deleteLastCharFor() {
+        const input = document.querySelector('.transfer_form_transfer_amount_input');
+        input.value = input.value.slice(0, -1);
+        formatNumber({ target: input });
+    }
+
 </script>
 
 </body>

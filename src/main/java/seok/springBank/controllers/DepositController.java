@@ -1,7 +1,6 @@
 package seok.springBank.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -57,10 +56,6 @@ public class DepositController {
 
     }
 
-    @GetMapping("/deposit_success")
-    public String handleCreated(HttpServletRequest req, HttpServletResponse res,@Login Member loginMember,Model model){
-        model.addAttribute("loginMember",loginMember);
-        return "depositSuccess";
-    }
+
 
 }

@@ -4,14 +4,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import seok.springBank.config.argumentresolver.Login;
 import seok.springBank.domain.account.Account;
 import seok.springBank.domain.account.CheckingAccount;
+import seok.springBank.domain.etcForms.ErrorResult;
+import seok.springBank.domain.etcForms.SimpleJsonResponse;
 import seok.springBank.domain.member.Member;
+import seok.springBank.domain.transfer.TransferForm;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
 import seok.springBank.service.AccountService;
+import seok.springBank.service.TransferService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +28,8 @@ import java.util.List;
 public class TransferController {
     private final AccountService accountService;
     private final AccountRepositoryV2 accountRepositoryV2;
+
+    private final TransferService transferService;
 
     @GetMapping("/transfer")
     public String getTransfer(HttpServletRequest req, HttpServletResponse res, Model model, @Login Member loginMember){
@@ -42,5 +49,23 @@ public class TransferController {
         model.addAttribute("loginMember",loginMember);
         return "transferForm";
     }
+    @PostMapping("/transfer")
+    @ResponseBody
+    public SimpleJsonResponse handleTransfer(HttpServletRequest req, HttpServletResponse res, @Login Member loginMember, @Validated  @RequestBody TransferForm transferForm,
+                                             BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            res.setStatus(400);
+            return new SimpleJsonResponse("Invalid Access",400);
+        }
+
+        accountService.isMyAccount(transferForm.getMyAccountNumber(),loginMember.getId());
+        accountService.isCheckingAccount(transferForm.getMyAccountNumber());
+        accountService.isCheckingAccount(transferForm.getTargetAccountNumber());
+        transferService.sendMoneyChecking(transferForm.getMyAccountNumber(), transferForm.getTargetAccountNumber(),transferForm.getAmount());
+
+        return new SimpleJsonResponse("Success",200);
+
+    }
+
 
 }

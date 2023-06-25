@@ -22,5 +22,14 @@ public class TransferTransactions  extends Transactions{
     @ManyToOne
     Account fromAccount;
 
+    public static TransferTransactions makeTransferTransaction(String name,Long amount,Account fromAccount, Account toAccount){
+        TransferTransactions transactions = new TransferTransactions();
+        transactions.setTransactionsName(name);
+        transactions.setAmount(amount);
+        transactions.setFromAccount(fromAccount);
+        transactions.setToAccount(toAccount);
+        return transactions;
+    }
+
 
 }

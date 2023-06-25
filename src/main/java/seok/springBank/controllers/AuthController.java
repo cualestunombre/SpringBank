@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.member.MemberLoginForm;
 import seok.springBank.domain.member.MemberSaveForm;
+import seok.springBank.service.EmailService;
 import seok.springBank.service.MemberService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class AuthController {
     private final MemberService memberService;
+
+    private final EmailService emailService;
 
     @GetMapping("/signup")
     public String getSignup(Model model){
@@ -28,6 +31,8 @@ public class AuthController {
         if(form.getChecked()==false){
             bindingResult.reject("CheckRequired","이용약관에 동의해 주세요");
         }
+
+        System.out.println(form.getEmail());
         if(!bindingResult.hasErrors()){
             Member savedMember = memberService.signup(form);
             if(savedMember==null){
