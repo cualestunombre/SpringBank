@@ -8,12 +8,18 @@
     <link rel="stylesheet" th:href="@{../../css/upper.css}">
     <link rel="stylesheet" th:href="@{../../css/footer.css}">
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
         .signup_info_container {
             width: 100%;
-
-            display: grid;
-            align-items: center;
+            display: flex;
+            flex-direction: row;
             justify-content: center;
+            text-align: center;
+            flex: 1;
         }
 
         .signup_info_contents {
@@ -116,51 +122,53 @@
             flex-direction: column;
 
         }
-        .signup_flex_row{
 
-            align-items: center;
-            display: flex;
-            width: 400px;
-            height: 40px;
-            justify-content: space-between;
-        }
         body{
             overflow-y: auto;
         }
-        #signup_token{
-            margin-top: 5px;
-            text-align: center;
-            border: none;
-            border-radius: 5px;
+
+        .blur {
+            filter: blur(5px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 투명한 검은색 배경 */
+            z-index: 9999;
+            display: none;
+        }
+
+        .overlay-active {
+            display: block;
+        }
+
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 50px;
-            height: 30px;
-            font-size: 11px;
-            background-color: rgb(120,184,86);
-
-        }
-        #signup_token_input{
-            margin-left: 5px;
-            margin-top: 5px;
-            border: 1px solid rgb(120,184,86);
-            width: 200px;
-            height:40px;
-            font-size:15px;
-        }
-        .signup_box_auth{
-            margin-top: 30px;
-            width:400px;
-        }
-        #time_left{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width:120px;
-
-            color:red;
-            font-size: 11px;
-            height: 40px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 10000;
+            display: none;
         }
 
+        .loader-active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         /* 나머지 스타일 */
 
     </style>
@@ -184,16 +192,7 @@
             <input type="password" id="password" th:field="*{password}" placeholder="영문 대소문자 및 숫자를 포함하여 비밀번호를 입력해주세요">
             <div class="signup_field-error" th:errors="*{password}"> </div>
         </div>
-        <div class="signup_box_auth signup_flex">
-            <label for="password">인증번호</label>
-            <div class="signup_flex_row">
-                <input id ="signup_token_input" type="password"  th:field="*{emailToken}" placeholder="인증번호를 입력해주세요">
-                <button id="signup_token" type="button">발급</button>
-                <div id="time_left" onclick="getCode(event)"></div>
-            </div>
 
-            <div class="signup_field-error" th:errors="*{emailToken}"> </div>
-        </div>
 
         <div class="signup_rule">
             <h3>이용약관</h3>
@@ -207,15 +206,21 @@
             <p class="signup_field-error"  th:each="err : ${#fields.globalErrors()}"th:text="${err}"></p>
         </div>
         <div class="signup_box_submit">
-            <button type="submit">제출</button>
+            <button id="submitBtn" type="submit">제출</button>
         </div>
     </form>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>
 <script>
-    function getCode(event){
-        
-    }
+    document.getElementById('submitBtn').addEventListener('click', function() {
+        document.body.classList.add('blur');
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+        const loader = document.createElement('div');
+        loader.classList.add('loader');
+        document.body.appendChild(loader);
+    });
 </script>
 </body>
 </html>

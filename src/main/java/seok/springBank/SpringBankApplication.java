@@ -7,6 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import seok.springBank.domain.account.CheckingAccount;
 import seok.springBank.domain.account.CommodityAccount;
 import seok.springBank.domain.member.Member;
@@ -40,6 +41,7 @@ public class SpringBankApplication {
 		AccountRepositoryV2 accountRepository;
 
 		@EventListener(ApplicationReadyEvent.class)
+		@Transactional
 		public void devInit(){
 			PolicySaveForm checkingSaveForm = new PolicySaveForm();
 			PolicySaveForm commoditySaveForm = new PolicySaveForm();
@@ -58,12 +60,14 @@ public class SpringBankApplication {
 			member.setName("우석우");
 			member.setPassword("dntjrdn78");
 			Member newMember = memberService.signup(member);
+			newMember.setAuthenticated(true);
 
 			MemberSaveForm member2 = new MemberSaveForm();
 			member2.setEmail("1usian0@naver.com");
 			member2.setName("임현수");
 			member2.setPassword("dntjrdn78");
 			Member newMember2 = memberService.signup(member2);
+			newMember2.setAuthenticated(true);
 
 			CheckingAccount checkingAccount2 = CheckingAccount.createCheckingAccount("입출금","010000000000000",checkPolicy,newMember2);
 			accountRepository.save(checkingAccount2);

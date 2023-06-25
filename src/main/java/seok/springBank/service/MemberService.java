@@ -28,11 +28,11 @@ public class MemberService {
         Member sameEmailMember = memberRepository.findByEmail(saveForm.getEmail());
         System.out.println (member.getEmail());
         if(sameEmailMember == null){
-            System.out.println("wth");
+
             memberRepository.save(member);
             return member;
         }
-        System.out.println("good");
+
         return null;
 
     }
@@ -42,6 +42,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(loginForm.getEmail());
         if(member==null) {return null;}
         else if(!member.getPassword().equals(loginForm.getPassword())) {return null;}
+        else if(!member.getAuthenticated()) return null;
         else {
             HttpSession session = request.getSession(true);
             session.setAttribute(SessionConst.LOGIN_MEMBER,member);

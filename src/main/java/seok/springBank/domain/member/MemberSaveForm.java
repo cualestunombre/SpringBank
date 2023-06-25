@@ -29,7 +29,6 @@ public class MemberSaveForm {
 
     Boolean checked;
 
-    @NotEmpty(message = "비어있을 수 없습니다")
-    String emailToken;
+
 
 }

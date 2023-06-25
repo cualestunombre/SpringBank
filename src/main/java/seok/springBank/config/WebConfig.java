@@ -43,7 +43,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/","/auth/login","/auth/signup",
-                        "/auth/logout","/css/**","/*.ico","/error","/test/**");
+                        "/auth/logout","/css/**","/*.ico","/error","/test/**","/auth/created/**","/auth/member/**");
         registry.addInterceptor(logInterceptor)
                 .order(1)
                 .addPathPatterns("/**")

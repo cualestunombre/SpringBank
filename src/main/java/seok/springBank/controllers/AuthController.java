@@ -2,6 +2,7 @@ package seok.springBank.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +40,16 @@ public class AuthController {
                 bindingResult.rejectValue("email","SameEmail","중복된 이메일 입니다");
             }
         }
+
         if(!bindingResult.hasErrors()){
-            return "redirect:/";
+            String code = null;
+            try{
+                code = emailService.sendEmail(form.getEmail());
+            }catch(Exception e){
+                return "redirect:/error";
+            }
+
+            return "redirect:/auth/created?code="+code+"&email="+form.getEmail();
         }
         return "signup";
     }
@@ -61,10 +70,31 @@ public class AuthController {
 
 
     }
+    @GetMapping("/created")
+    public String memberCreated(@RequestParam String email, @RequestParam String code){
+        if(!StringUtils.hasText(email)||!StringUtils.hasText(code)){
+            return "redirect:/error";
+        }
+        if (!emailService.isValidCode(email,code)){
+            return "redirect:/error";
+        }
+        return "memberCreated";
+
+    }
 
     @GetMapping("/logout")
     public String handleLogOut(HttpServletRequest request){
         memberService.logout(request);
+        return "redirect:/";
+    }
+    @GetMapping("/member")
+    public String handleAuth(@RequestParam String code,@RequestParam String email){
+        if(!StringUtils.hasText(code)||!StringUtils.hasText(email)) {System.out.println("wth");return "redirect:/error";}
+        if (!emailService.isValidCode(email,code)){
+            System.out.println("wtf");
+            return "redirect:/error";
+        }
+        emailService.authMember(email,code);
         return "redirect:/";
     }
 }

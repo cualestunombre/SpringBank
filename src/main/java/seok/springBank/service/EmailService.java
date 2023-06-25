@@ -3,8 +3,12 @@ package seok.springBank.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import seok.springBank.domain.member.Member;
+import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -14,7 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(isolation = Isolation.SERIALIZABLE)
 public class EmailService {
+    private final MemberRepositoryV2 memberRepository;
 
     //의존성 주입을 통해서 필요한 객체를 가져온다.
     private final JavaMailSender emailSender;
@@ -22,6 +28,18 @@ public class EmailService {
     private final SpringTemplateEngine templateEngine;
 
     private ConcurrentHashMap<String,String> authMap = new ConcurrentHashMap<>();
+
+    public void authMember(String email, String code){
+        if (authMap.containsKey(email)){
+            authMap.remove(email);
+        }
+        Member findMember =  memberRepository.findByEmail(email);
+        if (findMember == null){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        findMember.setAuthenticated(true);
+
+    }
 
     //랜덤 인증 코드 생성
     private String createCode() {
@@ -47,6 +65,8 @@ public class EmailService {
     }
 
     //메일 양식 작성
+
+
     public MimeMessage createEmailForm(String email) throws MessagingException, UnsupportedEncodingException {
 
         String code = createCode(); //인증 코드 생성
@@ -56,9 +76,15 @@ public class EmailService {
         message.addRecipients(MimeMessage.RecipientType.TO, email); //보낼 이메일 설정
         message.setSubject(title); //제목 설정
         message.setFrom(setFrom); //보내는 이메일
-        message.setText(setContext(code), "utf-8", "html");
+        message.setText(setContext(code,email), "utf-8", "html");
         authMap.put(email,code);
         return message;
+    }
+    public boolean isValidCode(String email,String code){
+        if(authMap.containsKey(email) && authMap.get(email).equals(code)){
+            return true;
+        }
+        return false;
     }
 
     //실제 메일 전송
@@ -73,9 +99,10 @@ public class EmailService {
     }
 
     //타임리프를 이용한 context 설정
-    public String setContext(String code) {
+    public String setContext(String code,String email) {
         Context context = new Context();
         context.setVariable("code", code);
+        context.setVariable("email",email);
         return templateEngine.process("mail", context); //mail.html
     }
 

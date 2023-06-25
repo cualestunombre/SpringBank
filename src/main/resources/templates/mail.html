@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>메일</title>
+    <title>SpringBank - 인증</title>
 </head>
 <body>
-  인증번호 - [[${code}]]
+<a th:href="@{http://localhost:8080/auth/member(email=${email},code=${code})}">링크를 클릭해서 인증해주세요!</a>
+
 </body>
 </html>

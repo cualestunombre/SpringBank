@@ -30,6 +30,7 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member")
     List<Account> accounts = new ArrayList<>();
 
+    Boolean authenticated = false;
 
 
 }
