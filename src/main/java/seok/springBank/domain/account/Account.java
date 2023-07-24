@@ -40,6 +40,9 @@ public abstract class Account extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private Boolean expired = false;
 
-    private LocalDateTime nextTime;
+
+
 }

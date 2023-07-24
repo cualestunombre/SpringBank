@@ -8,6 +8,9 @@ import lombok.Setter;
 public class PolicySaveForm {
     private Double interestRate;
     private String dtype;
-    private String period;
-    private String duration;
+    private Long maxAmount;
+    private String policyName;
+
+    private Long duration;
+
 }

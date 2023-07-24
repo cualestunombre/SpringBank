@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import seok.springBank.domain.account.Account;
 import seok.springBank.domain.account.CheckingAccount;
 import seok.springBank.domain.member.Member;
+import seok.springBank.domain.policy.Policy;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,8 @@ public interface AccountRepositoryV2 extends JpaRepository<Account,Long> {
             " and a.accountNumber=:number")
     Optional<Account> isValidCreatedAccount(@Param("memberId")Long memberId,@Param("name") String name
     , @Param("number")String number);
+    @Query("select a from Account a where a.expired = false and a.policy = :policy ")
+    List<Account> findAccountByPolicyAndNotExpired(@Param("policy")Policy policy);
 
     Optional<Account> findByAccountNumberAndMember(String accountNumber, Member member);
 }

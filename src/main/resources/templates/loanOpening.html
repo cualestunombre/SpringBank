@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SpringBank - 대출</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .loan_opening_input_amount {
+        display: block;
+        width: 100%;
+        margin: 0px;
+        border: none;
+        background-color: rgb(200, 200, 200, 0.1);
+        border-radius: 3px;
+        height: 40px;
+        padding: 5px;
+        text-align: right;
+        position: relative;
+    }
+
+    .loan_opening_container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        border-radius: 10px;
+        flex-grow: 1;
+    }
+    .loan_opening_lists_title{
+        margin-top: 25px;
+        font-size: 20px;
+        font-weight: 300;
+    }
+    .loan_opening_lists_box {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        width: 350px;
+        height: 450px;
+        border-radius: 10px; /* 모서리를 살짝 둥글게 */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+
+        overflow: auto;
+    }
+    .loan_opening_name{
+        font-size: 20px;
+        font-weight: 300;
+
+    }
+    .loan_opening_max{
+        font-size: 20px;
+        font-weight: 300;
+
+    }
+    .loan_opening_interest_rate{
+        font-size: 20px;
+        font-weight: 300;
+
+    }
+    .loan_opening_max_duration{
+        font-size: 20px;
+        font-weight: 300;
+
+    }
+    .loan_opening_green{
+        color:#7FB06F;
+    }
+    .loan_opening_warning{
+        color: red;
+        font-weight: 500;
+        font-size: 10px;
+    }
+    .loan_opening_ok{
+        background-color:rgb(86,143,77);
+        font-weight: 300;
+        border: none;
+        border-radius: 3px;
+        color:white;
+        font-size: 13px;
+    }
+    .loan_opening_form{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        width: 350px;
+        height: 450px;
+        border-radius: 10px; /* 모서리를 살짝 둥글게 */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    }
+    .no_show{
+        display: none;
+    }
+    #back{
+        width: 50px;
+        background-color:rgb(86,143,77);
+        font-weight: 300;
+        border: none;
+        border-radius: 3px;
+        color:white;
+    }
+    .loan_opening_amount{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .loan_opening_max_amount{
+        color: red;
+        font-weight: 500;
+        font-size: 10px;
+    }
+  </style>
+  <link rel="stylesheet" th:href="@{../../css/upper.css}">
+  <link rel="stylesheet" th:href="@{../../css/footer.css}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+<body>
+<th:block th:replace="fragment/upperBar :: upper"></th:block>
+<div class="loan_opening_container">
+    <p class="loan_opening_lists_title">[[|${title}|]]</p>
+    <div class="loan_opening_lists_box">
+        <div class="loan_opening_name"><span class="loan_opening_green">상품명 </span> [[|${title}|]]</div>
+        <div class="loan_opening_max"><span class="loan_opening_green">상품한도액 </span> <span class="loan_opening_max_value">[[|${maxAmount}|]]</span></div>
+        <div class="loan_opening_interest_rate"><span class="loan_opening_green">이자율 </span> [[|${interestRate}%|]]</div>
+        <div class="loan_opening_max_duration"><span class="loan_opening_green">최장대출기간 </span>[[|${maxDuration}분|]]</div>
+        <div class="loan_opening_warning">기존에 동종의 대출이 있으신 분은 해당 상품 대출이 불가능합니다 </div>
+        <button type="button" class="loan_opening_ok" onclick="handleClick(event)">확인</button>
+    </div>
+    <div class="loan_opening_form no_show" th:value="${policyId}">
+        <button id="back" onclick="moveBack(event)">뒤로</button>
+        <div class="loan_opening_amount">
+            <div class="loan_opening_green">대출액</div>
+            <input type="text" class="loan_opening_input_amount" placeholder="얼마를 대출 하실 건가요?" oninput="handleInput(event)">
+            <div class="loan_opening_max_amount">한도액은 [[|${maxAmount}|]]</div>
+        </div>
+        <div class="loan_opening_duration">
+            <div class="loan_opening_green">대출기간</div>
+        </div>
+
+
+
+    </div>
+
+</div>
+<th:block th:replace="fragment/footer :: footer"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    const maxAmount= [[${maxAmount}]];
+    const maxDuration = [[${maxDuration}]];
+
+    window.onload = ()=>{
+        let target = document.querySelector(".loan_opening_max_value");
+        target.innerText = target.innerText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원";
+        let secondTarget = document.querySelector(".loan_opening_max_amount");
+        secondTarget.innerText = secondTarget.innerText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원입니다";
+    }
+    const handleClick = async (event) =>{
+        const id = document.querySelector(".loan_opening_form").getAttribute("value");
+        try{
+            const {data:{message}} = await axios.get(`http://localhost:8080/loan/type/${id}`);
+            if (message === "success"){
+                document.querySelector(".loan_opening_lists_box").classList.toggle("no_show");
+                document.querySelector(".loan_opening_form").classList.toggle("no_show");
+            }
+            else{
+
+            }
+
+        }catch(err){
+            location.href = "http://localhost:8080/error";
+        }
+    }
+    const moveBack = (event)=>{
+            document.querySelector(".loan_opening_lists_box").classList.toggle("no_show");
+            document.querySelector(".loan_opening_form").classList.toggle("no_show");
+
+    };
+
+    const handleInput = (event) => {
+        formatNumber(event);
+        const money = Number.parseInt(parseMoney(event.target.value));
+        if (money > maxAmount){
+            event.target.value = parseMoney(event.target.value.slice(0,-1));
+            formatNumber(event);
+        }
+
+    };
+
+    function parseMoney(value) {
+        const array = [];
+        for (const char of value) {
+            if (char !== ",") {
+                array.push(char);
+            }
+        }
+
+        return array.join('');
+    }
+    function formatNumber(event) {
+        // 입력된 값에서 숫자와 소수점만 추출
+        let input = event.target.value;
+        let cleanedInput = input.replace(/[^0-9.]/g, '');
+
+        // 숫자를 천 단위마다 콤마로 구분하여 포맷팅
+        let formattedInput = Number(cleanedInput).toLocaleString('en-US');
+
+        // 입력된 값 업데이트
+        event.target.value = formattedInput;
+    }
+</script>
+</body>
+</html>

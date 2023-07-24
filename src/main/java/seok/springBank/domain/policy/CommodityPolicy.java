@@ -12,12 +12,9 @@ import javax.persistence.Entity;
 @Entity
 public class CommodityPolicy extends Policy{
     public static CommodityPolicy createCommodityPolicy(PolicySaveForm policySaveForm){
-        if(policySaveForm.getInterestRate()==null || policySaveForm.getPeriod()==null){
-            throw new IllegalArgumentException("Invalid Access");
-        }
         CommodityPolicy commodityPolicy = new CommodityPolicy();
-        commodityPolicy.setPeriod(policySaveForm.getPeriod());
         commodityPolicy.setInterestRate(policySaveForm.getInterestRate());
+        commodityPolicy.setPolicyName(policySaveForm.getPolicyName());
         return commodityPolicy;
     }
 

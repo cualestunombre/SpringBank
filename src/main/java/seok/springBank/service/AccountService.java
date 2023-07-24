@@ -32,6 +32,13 @@ public class AccountService {
     private final MemberRepositoryV2 memberRepository;
     private final PolicyRepositoryV2 policyRepository;
 
+    public List<Account> hasAccountByPolicyId(Long id){
+        Policy policy = policyRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        //만료되지 않은 특정 정책을 가진 계좌들을 불러 옴
+        List<Account> account = accountRepository.findAccountByPolicyAndNotExpired(policy);
+        return account;
+    }
+
     public void isCheckingAccount(String accountNumber){
         List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
         if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");

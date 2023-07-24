@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 public class LoanAccount extends Account{
-    @Column(nullable = false)
-    LocalDateTime endAt;
+
     @Column(nullable = false)
     Long leftCount;
+
+    @Column(nullable = false)
+    String status;
 }

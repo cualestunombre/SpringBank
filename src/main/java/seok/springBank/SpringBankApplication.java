@@ -6,12 +6,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import seok.springBank.domain.account.CheckingAccount;
 import seok.springBank.domain.account.CommodityAccount;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.member.MemberSaveForm;
+import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.policy.Policy;
 import seok.springBank.domain.policy.PolicySaveForm;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
@@ -19,8 +21,11 @@ import seok.springBank.service.AccountService;
 import seok.springBank.service.MemberService;
 import seok.springBank.service.PolicyService;
 
+import javax.persistence.EntityManager;
+
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableScheduling
 public class SpringBankApplication {
 
 	public static void main(String[] args) {
@@ -45,14 +50,46 @@ public class SpringBankApplication {
 		public void devInit(){
 			PolicySaveForm checkingSaveForm = new PolicySaveForm();
 			PolicySaveForm commoditySaveForm = new PolicySaveForm();
+
+			PolicySaveForm worker = new PolicySaveForm();
+			PolicySaveForm house  = new PolicySaveForm();
+			PolicySaveForm business = new PolicySaveForm();
+
+			worker.setDtype("LOAN_POLICY");
+			worker.setMaxAmount(100000000L);
+			worker.setInterestRate(1.5);
+			worker.setDuration(60L);
+			worker.setPolicyName("worker");
+
+			house.setDtype("LOAN_POLICY");
+			house.setMaxAmount(1000000000L);
+			house.setInterestRate(1.0);
+			house.setDuration(120L);
+			house.setPolicyName("house");
+
+			business.setDtype("LOAN_POLICY");
+			business.setMaxAmount(200000000L);
+			business.setInterestRate(2.5);
+			business.setDuration(40L);
+			business.setPolicyName("business");
+
+
+
 			checkingSaveForm.setDtype("CHECKING_POLICY");
 			checkingSaveForm.setInterestRate(1.0);
-			checkingSaveForm.setPeriod("1HOUR");
+			checkingSaveForm.setPolicyName("basicChecking");
+
 			commoditySaveForm.setDtype("COMMODITY_POLICY");
 			commoditySaveForm.setInterestRate(0.5);
-			commoditySaveForm.setPeriod("1HOUR");
+			commoditySaveForm.setPolicyName("basicCommodity");
+
+
 			Policy checkPolicy =  policyService.makePolicy(checkingSaveForm);
 			Policy commodityPolicy = policyService.makePolicy(commoditySaveForm);
+
+			policyService.makePolicy(worker);
+			policyService.makePolicy(house);
+			policyService.makePolicy(business);
 
 
 			MemberSaveForm member = new MemberSaveForm();
@@ -78,14 +115,9 @@ public class SpringBankApplication {
 			accountRepository.save(commodityAccount);
 
 
-
 		}
 
-		@EventListener(ApplicationReadyEvent.class)
-		public void policyInit(){
 
-
-		}
 
 
 
