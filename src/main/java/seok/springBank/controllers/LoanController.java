@@ -4,20 +4,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import seok.springBank.config.argumentresolver.Login;
-import seok.springBank.domain.account.Account;
+import seok.springBank.domain.account.*;
 import seok.springBank.domain.etcForms.SimpleJsonResponse;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.policy.Policy;
+import seok.springBank.exceptions.account.AlreadyHasThisLoan;
 import seok.springBank.service.AccountService;
 import seok.springBank.service.PolicyService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -69,12 +71,35 @@ public class LoanController {
         if(id == null) {throw new IllegalArgumentException("Invalid Access");}
         List<Account> accounts = accountService.hasAccountByPolicyId(id);
         if(accounts.size() != 0) {
-            ret = new SimpleJsonResponse("fail",200);
+            throw new AlreadyHasThisLoan();
         }
         else{
             ret = new SimpleJsonResponse("success",200);
         }
         return ret;
+    }
+    @ResponseBody
+    @PostMapping("/loan/create")
+    public SimpleJsonResponse createLoan(HttpServletRequest req, HttpServletResponse res, @Validated  @RequestBody LoanAccountSaveForm saveForm,
+                                         BindingResult bindingResult,@Login Member member){
+        if (bindingResult.hasErrors()){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        LoanAccount account = accountService.createLoan(saveForm,member);
+
+        return new SimpleJsonResponse(account.getAccountNumber(),200);
+    }
+    @GetMapping("/loan/created")
+    public String createdLoan(@Login Member loginMember, Model model, @RequestParam("name")String name
+            ,@RequestParam("number")String number){
+        name = URLDecoder.decode(name);
+        accountService.isValidCreatedAccount("LOAN_ACCOUNT","대출계좌",number,loginMember.getId());
+        LoanAccount account = accountService.getLoanAccountByAccountNumber(number);
+        model.addAttribute("name",name);
+        model.addAttribute("accountNumber",number);
+        model.addAttribute("interestRate",account.getPolicy().getInterestRate());
+        model.addAttribute("leftCount",account.getLeftCount());
+        return "loanCreated";
     }
 
 }

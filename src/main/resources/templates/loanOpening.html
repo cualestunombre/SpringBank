@@ -11,7 +11,7 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
-    .loan_opening_input_amount {
+    .loan_opening_input {
         display: block;
         width: 100%;
         margin: 0px;
@@ -99,15 +99,17 @@
     .no_show{
         display: none;
     }
-    #back{
-        width: 50px;
+    .back{
+        font-size: 12px;
+        height: 40px;
+        width: 70px;
         background-color:rgb(86,143,77);
         font-weight: 300;
         border: none;
         border-radius: 3px;
         color:white;
     }
-    .loan_opening_amount{
+    .loan_opening_flex {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -135,27 +137,82 @@
         <button type="button" class="loan_opening_ok" onclick="handleClick(event)">확인</button>
     </div>
     <div class="loan_opening_form no_show" th:value="${policyId}">
-        <button id="back" onclick="moveBack(event)">뒤로</button>
-        <div class="loan_opening_amount">
+        <div class="loan_opening_flex">
             <div class="loan_opening_green">대출액</div>
-            <input type="text" class="loan_opening_input_amount" placeholder="얼마를 대출 하실 건가요?" oninput="handleInput(event)">
+            <input type="text" id="amount" class="loan_opening_input" placeholder="얼마를 대출 하실 건가요?" oninput="handleInput(event)">
             <div class="loan_opening_max_amount">한도액은 [[|${maxAmount}|]]</div>
         </div>
-        <div class="loan_opening_duration">
+        <div class="loan_opening_flex">
             <div class="loan_opening_green">대출기간</div>
+            <input type="text" id="duration" class="loan_opening_input" placeholder="얼마간 대출 하실 건가요?" oninput="handleDuration(event)">
+            <div class="loan_opening_max_amount">최장기간은 [[|${maxDuration}|]]분입니다</div>
         </div>
-
-
-
+        <button class="back" style="background-color:#7FB06F;" onclick="handleLoan(event)" data-bs-toggle="modal" data-bs-target="#exampleModal">대출실행</button>
+        <button class="back" onclick="moveBack(event)">뒤로</button>
     </div>
 
+
 </div>
+
+
 <th:block th:replace="fragment/footer :: footer"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script th:inline="javascript">
+    const title = [[${title}]];
+</script>
 <script>
     const maxAmount= [[${maxAmount}]];
     const maxDuration = [[${maxDuration}]];
+    const interrestRate = [[${interestRate}]];
+    const handleLoan = (event) =>{
+        let amount = document.querySelector("#amount").value;
+        let duration = document.querySelector("#duration").value;
+        const id = document.querySelector(".loan_opening_form").getAttribute("value");
+        if (amount == "" || duration ==""){
+            Swal.fire({
+                icon: 'error',
+                title: '고객님',
+                text: '대출액과 기간을 모두 입력하였는지 확인해 주세요!'
+            });
+            return;
+        }
 
+        Swal.fire({
+            title: '대출을 실행하시겠습니까?',
+            text: `대출액 ${amount}원 \n 대출기간 ${duration}분 \n 이자율 ${interrestRate}%`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#7FB06F',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '실행',
+            cancelButtonText: '뒤로가기'
+        }).then(async(result) => {
+            if (result.isConfirmed) {
+                console.log(id,amount,duration);
+                try{
+                    const {data:{message}}=await axios.post("/loan/create",{policyId:id,amount:parseMoney(amount),duration:duration});
+                    location.href = `/loan/created?name=${encodeURI(title)}&number=${message}`;
+                }catch(err){
+                    location.href = "/error";
+                }
+
+            }
+        })
+
+
+
+    };
+    const handleDuration = (event) =>{
+        let input = event.target.value;
+        let cleanedInput = input.replace(/[^0-9.]/g, '');
+        if (Number.parseInt(cleanedInput)>maxDuration){
+            event.target.value = event.target.value.slice(0,-1);
+        }else{
+            event.target.value = cleanedInput;
+        }
+    };
     window.onload = ()=>{
         let target = document.querySelector(".loan_opening_max_value");
         target.innerText = target.innerText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원";
@@ -170,12 +227,14 @@
                 document.querySelector(".loan_opening_lists_box").classList.toggle("no_show");
                 document.querySelector(".loan_opening_form").classList.toggle("no_show");
             }
-            else{
 
-            }
 
         }catch(err){
-            location.href = "http://localhost:8080/error";
+            Swal.fire({
+                icon: 'error',
+                title: '고객님',
+                text: `기존에 ${title}이 있습니다!`
+            });
         }
     }
     const moveBack = (event)=>{

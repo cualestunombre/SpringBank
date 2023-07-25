@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spring Bank - 대출</title>
+
+  <style>
+    .loan_created_container {
+      display: flex;
+      justify-content: center;
+      align-items: center; /* 수직 가운데 정렬 */
+      position: relative;
+      top: 50px;
+    }
+
+    .loan_created_information {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* 요소 사이 공간을 균등하게 배치 */
+      align-items: flex-start; /* 왼쪽 정렬 */
+      margin-top: 50px;
+      width: 350px;
+      height: 450px;
+      border-radius: 10px; /* 모서리를 살짝 둥글게 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+      padding: 20px; /* 내부 여백 추가 */
+    }
+
+    .loan_created_loan_number,
+    .loan_created_notification {
+      margin-bottom: 20px; /* 요소 사이 간격 조절 */
+    }
+
+    .loan_created_information a {
+      width: 100%;
+      display: block;
+      text-align: center; /* 가운데 정렬 */
+      font-weight: 500;
+      text-decoration: none;
+      color: rgb(120, 184, 86);
+      margin-bottom: 10px; /* 링크 사이 간격 조절 */
+    }
+
+    .loan_created_title {
+      text-align: center;
+      margin-bottom: 20px; /* 타이틀 아래 여백 조절 */
+      font-weight: 300;
+      font-size: 25px;
+    }
+    .loan_created_loan_name{
+      margin-top: 25px;
+      font-size: 20px;
+      font-weight: 200;
+    }
+    .loan_created_loan_number{
+      font-size: 20px;
+      font-weight: 200;
+    }
+    .loan_created_warning{
+
+      margin-top: 0px;
+      text-align: center;
+      font-size:25px;
+      font-weight: 300;
+    }
+    .loan_created_notification{
+      padding-bottom: 5px;
+      padding-top: 5px ;
+      border-radius: 5px;
+      background-color: rgb(200,200,200,0.5);
+    }
+
+
+  </style>
+</head>
+<body>
+
+<div class="loan_created_container">
+  <div class="loan_created_contents">
+    <p class="loan_created_title">대출계좌 생성을 완료하였습니다</p>
+    <div class="loan_created_information">
+      <div class="loan_created_loan_name">상품명 - [[${name}]]</div>
+      <div class="loan_created_loan_number">계좌번호 - [[${accountNumber}]]</div>
+      <div class="loan_created_loan_number">이자율 - [[${interestRate}]]</div>
+      <div class="loan_created_loan_number">남은 상환 횟수 - [[${leftCount}]]</div>
+      <div class="loan_crated_notification">
+        <p class="loan_created_warning">주의사항</p>
+        대출이자는 해당 계좌에서 1분단위로 빠져나가는 것을 주의하여, 연체되지 않도록 각별히 신경써주세요! 또한,
+        대출은 만기 이전 조기상환이 가능합니다. 이용해 주셔서 감사합니다 고객님!
+      </div>
+      <a href="/">계좌 조회하기</a>
+      <br>
+      <a href="/" style="margin-bottom: 25px">홈으로</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+</body>
+</html>

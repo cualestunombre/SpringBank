@@ -9,17 +9,16 @@ import seok.springBank.domain.account.*;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.policy.CheckingPolicy;
 import seok.springBank.domain.policy.CommodityPolicy;
+import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.policy.Policy;
-import seok.springBank.exceptions.account.AccountMoreThanFive;
-import seok.springBank.exceptions.account.BalanceNotEnoughException;
-import seok.springBank.exceptions.account.MyAccountException;
-import seok.springBank.exceptions.account.NotACheckingAccountException;
+import seok.springBank.exceptions.account.*;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
 import seok.springBank.repository.memberRepository.MemberRepository;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
 import seok.springBank.utility.AccountNumberGenerator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,12 +31,70 @@ public class AccountService {
     private final MemberRepositoryV2 memberRepository;
     private final PolicyRepositoryV2 policyRepository;
 
-    public List<Account> hasAccountByPolicyId(Long id){
+    public LoanAccount getLoanAccountByAccountNumber(String accountNumber){
+        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
+        if (accounts.size() != 1){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        Account account = accounts.get(0);
+        if (!(account instanceof LoanAccount)){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        return (LoanAccount) account;
+    }
+    public LoanAccount createLoan(LoanAccountSaveForm saveForm,Member member){
+        Policy policy = policyRepository.findById(saveForm.getPolicyId()).orElseThrow(()->{throw new IllegalArgumentException("Invalid Access");});
+        LoanPolicy loanPolicy;
+        String accountNumber;
+
+
+        if (!(policy instanceof LoanPolicy)){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        else{
+            loanPolicy = (LoanPolicy) policy;
+        }
+
+        //expire 되지 않은 계좌만 찾아 옴
+        if (hasAccountByPolicyId(saveForm.getPolicyId()).size()!=0){
+            throw new AlreadyHasThisLoan("Invalid Access");
+        }
+
+        if(loanPolicy.getMaxAmount() < saveForm.getAmount() || loanPolicy.getMaxDuration() < saveForm.getDuration() ){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        while (true) {
+            accountNumber = "11" + AccountNumberGenerator.generateRandomNumber();
+            if (accountRepository.findByAccountNumber(accountNumber).isEmpty()) {
+                break;
+            }
+        }
+
+        LoanAccount loanAccount = new LoanAccount();
+        loanAccount.setPolicy(policy);
+        loanAccount.setAccountNumber(accountNumber);
+        loanAccount.setExpired(false);
+        loanAccount.setStatus("비연체");
+        loanAccount.setName("대출계좌");
+        loanAccount.setBalance(saveForm.getAmount());
+        loanAccount.setLeftCount(saveForm.getDuration());
+        loanAccount.setMember(member);
+        loanAccount.setOverdueAmount(0L);
+        loanAccount.setCreatedAt(LocalDateTime.now());
+        loanAccount.setOverdueCnt(0L);
+
+        accountRepository.save(loanAccount);
+        return loanAccount;
+
+    }
+
+    public List<Account> hasAccountByPolicyId(Long id){ //expire되지 않은 계좌를 찾아 옴
         Policy policy = policyRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
         //만료되지 않은 특정 정책을 가진 계좌들을 불러 옴
         List<Account> account = accountRepository.findAccountByPolicyAndNotExpired(policy);
         return account;
     }
+
 
     public void isCheckingAccount(String accountNumber){
         List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
@@ -71,7 +128,7 @@ public class AccountService {
     public void isValidCreatedAccount(String type, String name, String number,Long memberId){
         System.out.println(type);
         if (!StringUtils.hasText(type)|| !StringUtils.hasText(name) || !StringUtils.hasText(number)
-        || !(type.equals("COMMODITY_ACCOUNT" )|| type.equals("CHECKING_ACCOUNT")) ){
+        || !(type.equals("COMMODITY_ACCOUNT" )|| type.equals("CHECKING_ACCOUNT") || type.equals("LOAN_ACCOUNT"))  ){
             throw new IllegalArgumentException("Invalid Access");
         }
 
