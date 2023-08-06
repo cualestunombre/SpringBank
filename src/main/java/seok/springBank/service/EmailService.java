@@ -9,7 +9,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import seok.springBank.domain.member.Member;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
@@ -24,12 +23,15 @@ public class EmailService {
 
     //의존성 주입을 통해서 필요한 객체를 가져온다.
     private final JavaMailSender emailSender;
+
+
     // 타임리프를사용하기 위한 객체를 의존성 주입으로 가져온다
     private final SpringTemplateEngine templateEngine;
 
     private ConcurrentHashMap<String,String> authMap = new ConcurrentHashMap<>();
 
-    public void authMember(String email, String code){
+    //회원 인증 로직
+    public void authMember(String email){
         if (authMap.containsKey(email)){
             authMap.remove(email);
         }
@@ -41,7 +43,7 @@ public class EmailService {
 
     }
 
-    //랜덤 인증 코드 생성
+    //랜덤 인증 코드 생성 로직
     private String createCode() {
         Random random = new Random();
         StringBuffer key = new StringBuffer();
@@ -64,9 +66,7 @@ public class EmailService {
         return key.toString();
     }
 
-    //메일 양식 작성
-
-
+    //메일 양식 작성 로직
     public MimeMessage createEmailForm(String email) throws MessagingException, UnsupportedEncodingException {
 
         String code = createCode(); //인증 코드 생성
@@ -80,6 +80,7 @@ public class EmailService {
         authMap.put(email,code);
         return message;
     }
+    //코드 검증 로직
     public boolean isValidCode(String email,String code){
         if(authMap.containsKey(email) && authMap.get(email).equals(code)){
             return true;
@@ -87,7 +88,7 @@ public class EmailService {
         return false;
     }
 
-    //실제 메일 전송
+    //메일 전송 로직
     public String sendEmail(String toEmail) throws MessagingException, UnsupportedEncodingException {
 
         //메일전송에 필요한 정보 설정

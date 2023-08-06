@@ -12,7 +12,6 @@ import seok.springBank.repository.accountRepository.AccountRepositoryV2;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 import seok.springBank.repository.transactionRepository.TransactionRepositoryV2;
 
-import java.util.Optional;
 
 @Transactional(isolation = Isolation.SERIALIZABLE)
 @RequiredArgsConstructor
@@ -23,16 +22,22 @@ public class DepositService {
 
     private final TransactionRepositoryV2 transactionRepository;
 
+
+    //입금 로직
     public void depositMoney(Long memberId, String accountNumber ,Long amount){
         if(amount<=0) throw new IllegalArgumentException("Invalid Access");
+
         Member member  = memberRepository.findById(memberId).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
         Account account = accountRepository.findByAccountNumberAndMember(accountNumber,member).orElseThrow(()-> new IllegalArgumentException("Invalid Access"));
+
         if (account instanceof CheckingAccount){
             account.setBalance(account.getBalance()+amount);
+            //입금 트랜잭션
             DepositTransactions depositTransactions = DepositTransactions.createSavingsTransactions(account,amount,"입금");
             transactionRepository.save(depositTransactions);
             return;
         }
+
         throw new IllegalArgumentException("Invalid Access");
     }
 }

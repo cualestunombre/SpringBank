@@ -19,6 +19,8 @@ public class LoanPolicy extends Policy{
     @Column(nullable = false)
     private Long maxAmount;
 
+
+
     public static LoanPolicy createLoanPolicy(PolicySaveForm form){
         LoanPolicy policy = new LoanPolicy();
         policy.setPolicyName(form.getPolicyName());

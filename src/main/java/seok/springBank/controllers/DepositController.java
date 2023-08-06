@@ -26,13 +26,15 @@ public class DepositController {
 
     private final DepositService depositService;
 
+    //입금 페이지 렌더링
     @GetMapping("/deposit")
-    public String getDeposit(HttpServletRequest req, HttpServletResponse res, Model model, @Login Member loginMember){
+    public String getDeposit(Model model, @Login Member loginMember){
         List<CheckingAccount> myCheckingAccount = accountService.getCheckingAccounts(loginMember.getId());
         model.addAttribute("accounts",myCheckingAccount);
         model.addAttribute("loginMember",loginMember);
         return "deposit";
     }
+    //상세 입금 페이지 렌더링
 
     @GetMapping("/deposit/{id}")
     public String getDepositForm(HttpServletRequest req, HttpServletResponse res, Model model, @Login Member loginMember,
@@ -47,10 +49,11 @@ public class DepositController {
             return "depositForm";
         }
     }
+    //입금 로직
 
     @PostMapping("/deposit")
     @ResponseBody
-    public String handleDeposit(HttpServletRequest req, HttpServletResponse res, Model model, @Login Member loginMember, @Validated  @RequestBody DepositForm depositForm){
+    public String handleDeposit(Model model, @Login Member loginMember, @Validated  @RequestBody DepositForm depositForm){
         depositService.depositMoney(loginMember.getId(), depositForm.getAccountNumber(), depositForm.getBalance());
         return "ok";
 

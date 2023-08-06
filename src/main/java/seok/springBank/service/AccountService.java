@@ -11,17 +11,19 @@ import seok.springBank.domain.policy.CheckingPolicy;
 import seok.springBank.domain.policy.CommodityPolicy;
 import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.policy.Policy;
+import seok.springBank.domain.transactions.LoanTransactions;
 import seok.springBank.exceptions.account.*;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
-import seok.springBank.repository.memberRepository.MemberRepository;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
+import seok.springBank.repository.transactionRepository.TransactionRepositoryV2;
 import seok.springBank.utility.AccountNumberGenerator;
-
+import seok.springBank.utility.LoanTypeInterpreter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Transactional(isolation = Isolation.SERIALIZABLE)
 @RequiredArgsConstructor
@@ -31,29 +33,42 @@ public class AccountService {
     private final MemberRepositoryV2 memberRepository;
     private final PolicyRepositoryV2 policyRepository;
 
-    public LoanAccount getLoanAccountByAccountNumber(String accountNumber){
-        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
-        if (accounts.size() != 1){
-            throw new IllegalArgumentException("Invalid Access");
-        }
-        Account account = accounts.get(0);
-        if (!(account instanceof LoanAccount)){
-            throw new IllegalArgumentException("Invalid Access");
-        }
-        return (LoanAccount) account;
+    private final TransactionRepositoryV2 transactionRepository;
+
+    // 계좌 ID로 계좌를 가져오는 로직
+    public Optional<Account> getAccountsById(Long id){
+        return  accountRepository.findById(id);
     }
+
+
+    //계좌번호를 통해서 대출계좌를 가져오는 로직
+    public LoanAccount getLoanAccountByAccountNumber(String accountNumber){
+        return accountRepository.findByAccountNumber(accountNumber)
+                .filter(e->e instanceof LoanAccount)
+                .map(e->(LoanAccount) e)
+                .stream().findFirst()
+                .orElseThrow(()->{throw new IllegalArgumentException("Invalid Access");});
+    }
+
+    //특정 회원이 입출금계좌를 갖고 있는 지 확인하는 로직
+    public Boolean hasCheckingAccount(Member member){
+        List<Account> accounts = accountRepository.findByMember(member)
+                .stream()
+                .filter(e->e instanceof CheckingAccount)
+                .filter(e->!e.getExpired())
+                .collect(Collectors.toList());
+        return accounts.size() != 0;
+    }
+    //대출 계좌를 생성하는 로직
     public LoanAccount createLoan(LoanAccountSaveForm saveForm,Member member){
-        Policy policy = policyRepository.findById(saveForm.getPolicyId()).orElseThrow(()->{throw new IllegalArgumentException("Invalid Access");});
-        LoanPolicy loanPolicy;
+        LoanPolicy loanPolicy = policyRepository
+                .findById(saveForm.getPolicyId())
+                .filter(e->e instanceof LoanPolicy)
+                .map(e->(LoanPolicy) e)
+                .stream().findFirst()
+                .orElseThrow(()->{throw new IllegalArgumentException("Invalid Access");});
         String accountNumber;
 
-
-        if (!(policy instanceof LoanPolicy)){
-            throw new IllegalArgumentException("Invalid Access");
-        }
-        else{
-            loanPolicy = (LoanPolicy) policy;
-        }
 
         //expire 되지 않은 계좌만 찾아 옴
         if (hasAccountByPolicyId(saveForm.getPolicyId()).size()!=0){
@@ -63,6 +78,7 @@ public class AccountService {
         if(loanPolicy.getMaxAmount() < saveForm.getAmount() || loanPolicy.getMaxDuration() < saveForm.getDuration() ){
             throw new IllegalArgumentException("Invalid Access");
         }
+
         while (true) {
             accountNumber = "11" + AccountNumberGenerator.generateRandomNumber();
             if (accountRepository.findByAccountNumber(accountNumber).isEmpty()) {
@@ -70,79 +86,83 @@ public class AccountService {
             }
         }
 
+        String loanName = LoanTypeInterpreter.translate("title",loanPolicy.getPolicyName());
         LoanAccount loanAccount = new LoanAccount();
-        loanAccount.setPolicy(policy);
+
+        loanAccount.setPolicy(loanPolicy);
         loanAccount.setAccountNumber(accountNumber);
         loanAccount.setExpired(false);
         loanAccount.setStatus("비연체");
-        loanAccount.setName("대출계좌");
+        loanAccount.setName(loanName);
         loanAccount.setBalance(saveForm.getAmount());
         loanAccount.setLeftCount(saveForm.getDuration());
         loanAccount.setMember(member);
+        loanAccount.setAmount(saveForm.getAmount());
         loanAccount.setOverdueAmount(0L);
         loanAccount.setCreatedAt(LocalDateTime.now());
         loanAccount.setOverdueCnt(0L);
 
+        LoanTransactions loanTransactions = LoanTransactions.createLoanTransaction(
+                loanAccount, saveForm.getAmount(),"대출"
+        );
+
+        transactionRepository.save(loanTransactions);
         accountRepository.save(loanAccount);
+
         return loanAccount;
 
     }
 
+    // 특정 정책을 가진 계좌를 가져오는 로직(expired 되지 않음)
     public List<Account> hasAccountByPolicyId(Long id){ //expire되지 않은 계좌를 찾아 옴
         Policy policy = policyRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
-        //만료되지 않은 특정 정책을 가진 계좌들을 불러 옴
         List<Account> account = accountRepository.findAccountByPolicyAndNotExpired(policy);
         return account;
     }
 
 
+    // 입출금계좌 여부확인 로직
     public void isCheckingAccount(String accountNumber){
-        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
-        if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");
-        else{
-            if (accounts.get(0) instanceof CheckingAccount) return;
-            else{
-                throw new IllegalArgumentException("Invalid Access");
-            }
-        }
+        accountRepository
+                .findByAccountNumber(accountNumber)
+                .filter(e->e instanceof CheckingAccount)
+                .orElseThrow(()->{throw new IllegalArgumentException("InvalidAccess");});
     }
+    //계좌에 잔액이 충분한 지 확인하는 로직
     public void isMoneyEnough(String accountNumber,Long amount){
-        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
-        if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(()->{throw new IllegalArgumentException("Invalid Access");});
+        if (account.getBalance()>=amount) return;
         else{
-            if (accounts.get(0).getBalance()>=amount) return;
-            else{
-                throw new BalanceNotEnoughException("Balance is not enough");
-            }
+            throw new BalanceNotEnoughException("Balance is not enough");
         }
     }
+    //자신의 계좌인지 확인하는 로직
     public void isMyAccount(String accountNumber,Long memberId){
-        Member findMember = memberRepository.findById(memberId).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
-        List<Account> accounts = accountRepository.findByAccountNumber(accountNumber);
-        if (accounts.size()==0) throw new IllegalArgumentException("Invalid Access");
-        else{
-            if (findMember==accounts.get(0).getMember()) return ;
-            else throw new IllegalArgumentException("Invalid Access");
-        }
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        if(account.getMember().getId() != memberId) throw new IllegalArgumentException("Invalid Access");
+
     }
+
+    //유효한 생성 계좌인지 확인하는 로직
     public void isValidCreatedAccount(String type, String name, String number,Long memberId){
-        System.out.println(type);
         if (!StringUtils.hasText(type)|| !StringUtils.hasText(name) || !StringUtils.hasText(number)
         || !(type.equals("COMMODITY_ACCOUNT" )|| type.equals("CHECKING_ACCOUNT") || type.equals("LOAN_ACCOUNT"))  ){
             throw new IllegalArgumentException("Invalid Access");
         }
-
-        Optional<Account> account = accountRepository.isValidCreatedAccount(memberId,name,number);
-        account.orElseThrow(()->new IllegalArgumentException("Invalid Access"));
-
+        accountRepository
+                .isValidCreatedAccount(memberId,name,number)
+                .orElseThrow(()->new IllegalArgumentException("Invalid Access"));
     }
-    public CheckingAccount getCheckingAccountByAccountNumber(String targetAccountNumber,String myAccountNumber){
-       List<Account> accounts = accountRepository.findByAccountNumber(targetAccountNumber);
+    // 계좌번호로 특정 입출금 계좌를 가져오는 로직 + 이 입출금 계좌가 현재 자신의 계좌와 같은 지 까지 검증함
 
-       Account account=null;
-       if (accounts.size()!=0){
-           account = accounts.get(0);
-       }
+    public CheckingAccount getCheckingAccountByAccountNumber(String targetAccountNumber,String myAccountNumber){
+       Account account = accountRepository
+               .findByAccountNumber(targetAccountNumber)
+               .orElse(null);
+
        if(account!=null && account instanceof CheckingAccount && !account.getAccountNumber().equals(myAccountNumber)){
            return (CheckingAccount) account;
        }
@@ -156,20 +176,29 @@ public class AccountService {
        throw new NoSuchElementException("Not Found");
     }
 
+    //입출금 계좌를 id로 가져오는 로직
     public CheckingAccount getCheckingAccountById(Long id){
-        Account account = accountRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
-        if (account instanceof CheckingAccount){
-            return (CheckingAccount) account;
-        }
-        else{
-            throw new IllegalArgumentException("Invalid Access");
-        }
+        return (CheckingAccount) accountRepository
+                .findById(id)
+                .filter(e->e instanceof CheckingAccount)
+                .orElseThrow(()->new IllegalArgumentException("Invalid Access"));
     }
 
+    //특정 회원이 가진 expired되지 않은 대출계좌를 가져 옴
+    public List<LoanAccount> getLoanAccounts(Member member){
+        return accountRepository.findByMember(member)
+                .stream()
+                .filter(e->e instanceof LoanAccount)
+                .filter(e->!(e.getExpired()))
+                .map(e->(LoanAccount)e)
+                .collect(Collectors.toList());
+    }
+    //특정 회원이 가진 모든 입출금계좌를 가져 옴
     public List<CheckingAccount> getCheckingAccounts(Long memberId){
         return accountRepository.findCheckingAccountById(memberId);
     }
 
+    // 입출금 계좌또는 상품계좌를 생성하는 로직
     public Account makeAccount(AccountSaveForm accountSaveForm, Long memberId) throws AccountMoreThanFive{
 
         Account account=null;

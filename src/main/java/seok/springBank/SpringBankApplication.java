@@ -2,6 +2,7 @@ package seok.springBank;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -60,6 +61,7 @@ public class SpringBankApplication {
 			worker.setInterestRate(1.5);
 			worker.setDuration(60L);
 			worker.setPolicyName("worker");
+
 
 			house.setDtype("LOAN_POLICY");
 			house.setMaxAmount(1000000000L);

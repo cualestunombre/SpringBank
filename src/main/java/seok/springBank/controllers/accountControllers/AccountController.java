@@ -1,4 +1,4 @@
-package seok.springBank.controllers;
+package seok.springBank.controllers.accountControllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,25 +25,17 @@ import java.net.URLEncoder;
 public class AccountController {
     private final AccountService accountService;
 
-    @PostMapping("/account/check")
-    @ResponseBody
-
-    public AccountCheckForm checkAccount(HttpServletRequest req, HttpServletResponse res, @Login Member loginMember,
-                                         @RequestBody AccountNumberForm accountNumber){
-        CheckingAccount checkingAccount = accountService.getCheckingAccountByAccountNumber(accountNumber.getTargetAccountNumber(), accountNumber.getMyAccountNumber());
-        return AccountCheckForm.makeAccountCheckForm(checkingAccount);
-    }
 
 
-
+    // 계좌 개설 페이지 렌더링
     @GetMapping("/account")
-    public String getCreateAccount(HttpServletRequest req, HttpServletResponse res,@Login Member loginMember
-    ,Model model) {
+    public String getCreateAccount(@Login Member loginMember, Model model) {
         model.addAttribute("accountSaveForm",new AccountSaveForm());
         model.addAttribute("loginMember",loginMember);
         model.addAttribute("moreThanFive",false);
         return "accountOpening";
     }
+    // 계좌 개설 성공 페이지 렌더링
     @GetMapping("/account/created")
     public String createdAccount(@Login Member loginMember, Model model, @RequestParam("type") String type, @RequestParam("name")String name
     ,@RequestParam("number")String number){
@@ -57,20 +49,21 @@ public class AccountController {
         else{
             account = new CommodityAccount();
         }
-
         account.setAccountNumber(number);
         account.setName(name);
         model.addAttribute("account",account);
         model.addAttribute("type",type);
         return "accountCreated";
     }
+    //계좌 생성 로직
     @PostMapping("/account")
-    public String createAccount(@Validated @ModelAttribute AccountSaveForm accountSaveForm, BindingResult bindingResult,HttpServletRequest req, HttpServletResponse res, @Login Member loginMember
+    public String createAccount(@Validated @ModelAttribute AccountSaveForm accountSaveForm, BindingResult bindingResult, @Login Member loginMember
     , Model model){
-        //ModelAttribute정의
+
         model.addAttribute("loginMember",loginMember);
         String type = "";
 
+        // 계좌 정책 설정
         setPolicy(accountSaveForm);
 
         if(bindingResult.hasErrors()){
@@ -80,12 +73,9 @@ public class AccountController {
         }
 
         try{
-            System.out.println("point1");
             Account account = accountService.makeAccount(accountSaveForm,loginMember.getId());
-            System.out.println("point2");
             if(account instanceof CheckingAccount){
                 type = "CHECKING_ACCOUNT";
-
             }
             else{
                type = "COMMODITY_ACCOUNT";
@@ -101,7 +91,8 @@ public class AccountController {
 
     }
 
-    //추후에 다른 방법 강구
+
+    //입출금계좌 -> 1L, 상품계좌 -> 2L
     private void setPolicy(AccountSaveForm accountSaveForm){
         if (accountSaveForm.getDtype().equals("CHECKING_ACCOUNT")){
             accountSaveForm.setPolicyId(1L);

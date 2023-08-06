@@ -13,6 +13,8 @@ import seok.springBank.repository.policyRepository.PolicyRepositoryV2;
 public class PolicyService {
     private final PolicyRepositoryV2 policyRepository;
 
+    // 정책 생성 로직
+
     public Policy makePolicy(PolicySaveForm policySaveForm){
         Policy policy=null;
         if (policySaveForm.getDtype()=="CHECKING_POLICY"){
@@ -29,6 +31,7 @@ public class PolicyService {
         return policy;
     }
 
+    // 정책 명을 통해 정책을 찾는 로직
     public Policy findPolicyByName(String name){
         return policyRepository.findPolicyByPolicyName(name)
                 .orElseThrow(()-> new IllegalArgumentException("Invalid Access"));

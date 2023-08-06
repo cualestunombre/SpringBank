@@ -76,6 +76,9 @@
                 opacity: 1;
             }
         }
+        .temp_label{
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -84,17 +87,17 @@
     <a href="/loan/create" class="loan_col">
         대출 실행
     </a>
-    <a href="#" class="loan_col">
+    <a href="/loan/inquiry" class="loan_col">
         대출 계좌조회
-    </a>
-    <a href="#" class="loan_col">
-        연체 여부조회
     </a>
     <a href="#" class="loan_col">
         대출 조기상환
     </a>
-    <a href="#" class="loan_col">
-        대출금 이체
+    <a href="/loan/withdraw" class="loan_col">
+        대출계좌 출금
+    </a>
+    <a href="/loan/transfer" class="loan_col">
+        대출계좌로 이체
     </a>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>

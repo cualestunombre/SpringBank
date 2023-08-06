@@ -133,7 +133,9 @@
         <div class="loan_opening_max"><span class="loan_opening_green">상품한도액 </span> <span class="loan_opening_max_value">[[|${maxAmount}|]]</span></div>
         <div class="loan_opening_interest_rate"><span class="loan_opening_green">이자율 </span> [[|${interestRate}%|]]</div>
         <div class="loan_opening_max_duration"><span class="loan_opening_green">최장대출기간 </span>[[|${maxDuration}분|]]</div>
-        <div class="loan_opening_warning">기존에 동종의 대출이 있으신 분은 해당 상품 대출이 불가능합니다 </div>
+        <div class="loan_opening_warning">- 기존에 동종의 대출이 있으신 분은 해당 상품 대출이 불가능합니다 </div>
+        <div class="loan_opening_warning">- 현재 연체 기록이 있으신 분 또한 해당 상품 대출이 불가능합니다 </div>
+        <div class="loan_opening_warning">- 하나 이상의 입출금 계좌가 없으신 분은 해당 상품 대출이 불가능합니다 </div>
         <button type="button" class="loan_opening_ok" onclick="handleClick(event)">확인</button>
     </div>
     <div class="loan_opening_form no_show" th:value="${policyId}">
@@ -230,11 +232,29 @@
 
 
         }catch(err){
-            Swal.fire({
-                icon: 'error',
-                title: '고객님',
-                text: `기존에 ${title}이 있습니다!`
-            });
+            const {response:{data:{message}}} = err;
+            if (message === "alreadyHas"){
+                Swal.fire({
+                    icon: 'error',
+                    title: '고객님',
+                    text: `기존에 ${title}이 있습니다!`
+                });
+
+            }
+            else if(message === "noChecking"){
+                Swal.fire({
+                    icon: 'error',
+                    title: '고객님',
+                    text: `보유하신 입출금 계좌가 없습니다!`
+                });
+            }
+            else{
+                Swal.fire({
+                    icon: 'error',
+                    title: '고객님',
+                    text: `연체기록이 있습니다!`
+                });
+            }
         }
     }
     const moveBack = (event)=>{

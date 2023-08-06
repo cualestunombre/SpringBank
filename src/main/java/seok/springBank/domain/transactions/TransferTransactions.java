@@ -14,20 +14,18 @@ import javax.persistence.ManyToOne;
 @Setter
 @DiscriminatorValue(value="TRANSFER")
 public class TransferTransactions  extends Transactions{
-    @JoinColumn
-    @ManyToOne
-    Account toAccount ;
 
-    @JoinColumn
-    @ManyToOne
-    Account fromAccount;
 
     public static TransferTransactions makeTransferTransaction(String name,Long amount,Account fromAccount, Account toAccount){
         TransferTransactions transactions = new TransferTransactions();
+
         transactions.setTransactionsName(name);
         transactions.setAmount(amount);
         transactions.setFromAccount(fromAccount);
         transactions.setToAccount(toAccount);
+        transactions.setReceiverBalance(toAccount.getBalance());
+        transactions.setSenderBalance(fromAccount.getBalance());
+
         return transactions;
     }
 

@@ -1,4 +1,4 @@
-package seok.springBank.controllers;
+package seok.springBank.controllers.transferControllers;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +31,17 @@ public class TransferController {
 
     private final TransferService transferService;
 
+    //송금 페이지 렌더링
     @GetMapping("/transfer")
-    public String getTransfer(HttpServletRequest req, HttpServletResponse res, Model model, @Login Member loginMember){
+    public String getTransfer(Model model, @Login Member loginMember){
         List<CheckingAccount> myCheckingAccount = accountService.getCheckingAccounts(loginMember.getId());
         model.addAttribute("accounts",myCheckingAccount);
         model.addAttribute("loginMember",loginMember);
         return "transfer";
     }
+    //송금 상세 페이지 렌더링
     @GetMapping("/transfer/{id}")
-    public String getSelectedTransfer(HttpServletRequest req,HttpServletResponse res, Model model,@Login Member loginMember
+    public String getSelectedTransfer(Model model,@Login Member loginMember
     ,@PathVariable Long id){
         if (accountRepositoryV2.isMyAccount(loginMember.getId(),id)==null){
             throw new IllegalArgumentException("Invalid Access");
@@ -49,23 +51,7 @@ public class TransferController {
         model.addAttribute("loginMember",loginMember);
         return "transferForm";
     }
-    @PostMapping("/transfer")
-    @ResponseBody
-    public SimpleJsonResponse handleTransfer(HttpServletRequest req, HttpServletResponse res, @Login Member loginMember, @Validated  @RequestBody TransferForm transferForm,
-                                             BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            res.setStatus(400);
-            return new SimpleJsonResponse("Invalid Access",400);
-        }
 
-        accountService.isMyAccount(transferForm.getMyAccountNumber(),loginMember.getId());
-        accountService.isCheckingAccount(transferForm.getMyAccountNumber());
-        accountService.isCheckingAccount(transferForm.getTargetAccountNumber());
-        transferService.sendMoneyChecking(transferForm.getMyAccountNumber(), transferForm.getTargetAccountNumber(),transferForm.getAmount());
-
-        return new SimpleJsonResponse("Success",200);
-
-    }
 
 
 }

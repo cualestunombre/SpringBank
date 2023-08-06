@@ -14,9 +14,7 @@ import javax.persistence.ManyToOne;
 @Setter
 @DiscriminatorValue(value="SAVINGS")
 public class SavingsTransactions  extends Transactions{
-    @JoinColumn
-    @ManyToOne
-    Account toAccount ;
+
 
 
 

@@ -11,6 +11,8 @@ import seok.springBank.service.SessionConst;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+
+// @Login annotation을 처리하는 ArgumentResolver
 public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter){

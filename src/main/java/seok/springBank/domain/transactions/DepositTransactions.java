@@ -14,15 +14,16 @@ import javax.persistence.ManyToOne;
 @Setter
 @DiscriminatorValue(value="DEPOSIT")
 public class DepositTransactions  extends Transactions{
-    @JoinColumn
-    @ManyToOne
-    Account toAccount ;
+
 
     public static DepositTransactions createSavingsTransactions(Account toAccount,Long amount,String transactionName){
         DepositTransactions depositTransactions = new DepositTransactions();
+
         depositTransactions.setAmount(amount);
         depositTransactions.setTransactionsName(transactionName);
         depositTransactions.setToAccount(toAccount);
+        depositTransactions.setReceiverBalance(amount);
+
         return depositTransactions;
 
     }

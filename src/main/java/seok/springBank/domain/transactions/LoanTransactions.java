@@ -14,9 +14,13 @@ import javax.persistence.ManyToOne;
 @Setter
 @DiscriminatorValue(value="LOAN")
 public class LoanTransactions  extends Transactions{
-    @JoinColumn
-    @ManyToOne
-    Account toAccount ;
-
+    public static LoanTransactions createLoanTransaction(Account toAccount, Long amount,String name){
+        LoanTransactions loanTransactions = new LoanTransactions();
+        loanTransactions.setTransactionsName(name);
+        loanTransactions.setAmount(amount);
+        loanTransactions.setToAccount(toAccount);
+        loanTransactions.setReceiverBalance(toAccount.getBalance());
+        return loanTransactions;
+    }
 
 }

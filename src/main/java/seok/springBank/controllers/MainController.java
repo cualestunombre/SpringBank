@@ -14,11 +14,13 @@ import java.net.URLDecoder;
 @Slf4j
 @Controller
 public class MainController {
+    // 메인 페이지 렌더링
     @GetMapping("/")
     public String getWelcome(@Login Member loginMember, Model model) {
         model.addAttribute("loginMember",loginMember);
         return "welcome";
     }
+    // 성공 페이지 렌더링
     @GetMapping("/success/{path}")
     public String getSuccess(@Login Member loginMember, Model model, @PathVariable(value = "path") String path){
         path = URLDecoder.decode(path);

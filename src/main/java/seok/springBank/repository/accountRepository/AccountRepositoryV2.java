@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepositoryV2 extends JpaRepository<Account,Long> {
-    List<Account> findByAccountNumber(String accountNumber);
+    Optional<Account> findByAccountNumber(String accountNumber);
 
     // 회원이 가진 checkingAccount의 수
     @Query("select count(*) from CheckingAccount a  where a.member=:member")
@@ -37,4 +37,6 @@ public interface AccountRepositoryV2 extends JpaRepository<Account,Long> {
     List<Account> findAccountByPolicyAndNotExpired(@Param("policy")Policy policy);
 
     Optional<Account> findByAccountNumberAndMember(String accountNumber, Member member);
+
+    List<Account> findByMember(Member member);
 }

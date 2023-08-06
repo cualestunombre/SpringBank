@@ -23,5 +23,10 @@ public class LoanAccount extends Account{
     Long overdueCnt;
 
     @Column(nullable = false)
+    Long amount;
+
+    @Column(nullable = false)
     Long overdueAmount;
+
+
 }

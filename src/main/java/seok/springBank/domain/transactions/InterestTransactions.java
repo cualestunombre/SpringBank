@@ -14,8 +14,12 @@ import javax.persistence.ManyToOne;
 @Setter
 @DiscriminatorValue(value="INTEREST")
 public class InterestTransactions  extends Transactions{
-    @JoinColumn
-    @ManyToOne
-    Account toAccount ;
-
+    public static InterestTransactions createInterestTransactions(Account toAccount,Long amount,String transactionName){
+        InterestTransactions interestTransactions = new InterestTransactions();
+        interestTransactions.setTransactionsName(transactionName);
+        interestTransactions.setAmount(amount);
+        interestTransactions.setToAccount(toAccount);
+        interestTransactions.setReceiverBalance(toAccount.getBalance());
+        return interestTransactions;
+    }
 }

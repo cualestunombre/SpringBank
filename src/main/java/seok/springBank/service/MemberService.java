@@ -4,14 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import seok.springBank.domain.account.Account;
+import seok.springBank.domain.account.LoanAccount;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.member.MemberLoginForm;
 import seok.springBank.domain.member.MemberSaveForm;
+import seok.springBank.repository.accountRepository.AccountRepositoryV2;
 import seok.springBank.repository.memberRepository.MemberRepository;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -19,21 +24,31 @@ import javax.servlet.http.HttpSession;
 @Transactional(isolation = Isolation.SERIALIZABLE)
 public class MemberService {
     private final MemberRepositoryV2 memberRepository;
+    private final AccountRepositoryV2 accountRepository;
 
+    //회원가입 로직
     public Member signup(MemberSaveForm saveForm){
         Member member = new Member();
         member.setEmail(saveForm.getEmail());
         member.setName(saveForm.getName());
         member.setPassword(saveForm.getPassword());
         Member sameEmailMember = memberRepository.findByEmail(saveForm.getEmail());
-        System.out.println (member.getEmail());
         if(sameEmailMember == null){
-
             memberRepository.save(member);
             return member;
         }
-
         return null;
+    }
+
+    //회원의 연체 여부 조회 로직
+    public Boolean checkLatePayment(Member member){
+        List<Account> accounts = accountRepository.findByMember(member)
+                .stream()
+                .filter(e->e instanceof LoanAccount)
+                .filter(e->!e.getExpired())
+                .filter(e->((LoanAccount) e).getStatus().equals("연체")||((LoanAccount) e).getStatus().equals("원금연체"))
+                .collect(Collectors.toList());
+        return accounts.size() != 0;
 
     }
 

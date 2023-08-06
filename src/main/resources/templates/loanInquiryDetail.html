@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SpringBank - 대출</title>
+  <link rel="stylesheet" th:href="@{../../css/footer.css}">
+  <link rel="stylesheet" th:href="@{../../css/upper.css}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <style>
+        .loan_inquiry_detail_container {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* 수직 가운데 정렬 */
+            position: relative;
+            top: 50px;
+        }
+        body{
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .loan_inquiry_box{
+            width: 400px;
+            height: 500px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+        }
+        .loan_inquiry_title{
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 200;
+        }
+        .loan_inquiry_account_number{
+            text-align: right;
+            text-decoration:underline;
+            margin-right: 20px;
+            font-weight: 200;
+        }
+        .back{
+            margin-top: 20px;
+            margin-left: 20px;
+            background-color:rgb(86,143,77);
+            font-weight: 300;
+            border: none;
+            border-radius: 3px;
+            color:white;
+        }
+        .overdue{
+            margin-top: 20px;
+            margin-left: 20px;
+            background-color:red;
+            font-weight: 300;
+            border: none;
+            border-radius: 3px;
+            color:white;
+        }
+        .loan_inquiry_list{
+            width:100%;
+            height: 300px;
+            background-color: #d8f4db;
+        }
+        .loan_inquiry_pagination{
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .page-item{
+            color:#7FB06F;
+        }
+        .page-item.active{
+            background-color: #7FB06F;
+        }
+        .page-link{
+            color:#7FB06F;
+        }
+        .information_inquiry{
+            margin-top: 20px;
+            margin-left: 20px;
+            font-weight: 300;
+            border: none;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .loan_inquiry_overdue_title{
+            text-align: center;
+            font-size: 22px;
+            font-weight: 300;
+            margin-top: 30px;
+        }
+        .loan_inquiry_overdue_amount{
+            text-align: center;
+            font-size: 13px;
+            font-weight: 300;
+        }
+        .loan_inquiry_overdue_cnt{
+            text-align: center;
+            font-size: 13px;
+            font-weight: 300;
+        }
+        .loan_inquiry_total{
+            text-align: center;
+            font-size: 13px;
+            font-weight: 300;
+        }
+        .loan_inquiry_left{
+            text-align: center;
+            font-size: 13px;
+            font-weight: 300;
+        }
+        .loan_inquiry_left_cnt{
+            text-align: center;
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+
+    </style>
+</head>
+<body>
+<th:block th:replace="fragment/upperBar :: upper"></th:block>
+<div class="loan_inquiry_detail_container">
+    <div class="loan_inquiry_box">
+        <button class="back" onclick="moveBack(event)">뒤로</button>
+        <button data-bs-target="#overdue_inquiry" data-bs-toggle="modal" type="button" class="overdue" onclick="checkOverDue(event)">연체여부 조회</button>
+        <button data-bs-target="#information_inquiry" data-bs-toggle="modal" type="button" class="information_inquiry" onclick="checkInformation(event)">상환정보 조회</button>
+        <h3 class="loan_inquiry_title">[[|${account.name}|]]</h3>
+        <p class="loan_inquiry_account_number">[[|${account.accountNumber}|]]</p>
+        <div class="loan_inquiry_list"></div>
+        <div class="loan_inquiry_pagination">
+            <nav aria-label="...">
+                <ul class="pagination">
+
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="overdue_inquiry" tabindex="-1" aria-labelledby="overdueModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="overdueModalLabel">연체여부 조회</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="loan_inquiry_overdue_title">연체횟수</div>
+                    <div class="loan_inquiry_overdue_cnt"></div>
+                    <div class="loan_inquiry_overdue_title">연체액</div>
+                    <div class="loan_inquiry_overdue_amount"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="information_inquiry" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="information_inquiry" tabindex="-1" aria-labelledby="informationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="informationModalLabel">상환정보 조회</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="loan_inquiry_overdue_title">대출액</div>
+                    <div class="loan_inquiry_total"></div>
+                    <div class="loan_inquiry_overdue_title">남은 원금 + 이자 + 연체이자(합산)</div>
+                    <div class="loan_inquiry_left"></div>
+                    <div class="loan_inquiry_overdue_title">남은 이자 횟수  + 연체 횟수(합산)</div>
+                    <div class="loan_inquiry_left_cnt"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="information_inquiry" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:replace="fragment/footer :: footer"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+<script>
+    const start = `<li class="page-item">
+                        <button id="previous" class="page-link">이전</button>
+                    </li>`;
+    const end = `<li class="page-item">
+        <button id="previous" class="page-link">다음</button>
+    </li>`;
+    const workThePagination = async()=>{
+        const targetNode = document.querySelector(".pagination");
+        targetNode.innerHTML=start;
+        try{
+            const {data:{message}} = await axios.get(`/loan/inquiry/count?accountNumber=${accountNumber}`);
+            totalPage = message;
+            //page는 총 페이지 수임
+            for (let step = curPage; step<=totalPage && step<curPage+5; step++){
+                //page_buttons
+                //<li class="page-item"><button class="page-link" href="#">1</button></li>
+                const li = `<li class="page-item"><button class="page-link" >${step}</button></li>`;
+                targetNode.innerHTML+=li;
+            }
+            targetNode.innerHTML+=end;
+        }catch (err){
+            console.error(err);
+        }
+
+    }
+    const accountNumber = document.querySelector(".loan_inquiry_account_number").innerText;
+    let curPage = 1;
+    let totalPage ;
+    workThePagination();
+
+    const formatNumber = (input)=>{
+        return Number(input).toLocaleString('en-US');
+    };
+
+
+
+    const checkOverDue = async (event)=>{
+        try{
+            const {data:{amount,count}} = await axios.get(`/loan/overdue?accountNumber=${accountNumber}`);
+            document.querySelector(".loan_inquiry_overdue_cnt").innerText = count+"회";
+            document.querySelector(".loan_inquiry_overdue_amount").innerText = formatNumber(amount)+"원";
+        }catch(err){
+            location.href = "/error";
+        }
+    };
+    const checkInformation = async (event)=>{
+        try{
+            const {data:{total,count,amount}} = await
+                axios.get(`/loan/inquiry/information?accountNumber=${accountNumber}`);
+            document.querySelector(".loan_inquiry_total").innerText = formatNumber(total)+"원";
+            document.querySelector(".loan_inquiry_left_cnt").innerText = count+"회";
+            document.querySelector(".loan_inquiry_left").innerText = formatNumber(amount)+"원";
+        }catch (err){
+            console.error(err);
+        }
+    };
+    const moveBack = (event) =>{
+        location.href = "/loan/inquiry";
+    };
+    // 5개씩 표시
+    window.onload = ()=>{
+
+    };
+</script>
+</body>
+</html>

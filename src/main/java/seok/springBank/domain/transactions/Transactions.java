@@ -3,6 +3,7 @@ package seok.springBank.domain.transactions;
 import lombok.Getter;
 import lombok.Setter;
 import seok.springBank.domain.BaseEntity;
+import seok.springBank.domain.account.Account;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -20,11 +21,27 @@ public abstract class Transactions extends BaseEntity {
     private Long id;
 
 
+    @Column
+    private Long senderBalance;
+
+    @Column
+    private Long receiverBalance;
+
     @Column(nullable = false)
     private Long amount;
 
     @Column(nullable = false)
     private String transactionsName;
+
+    @JoinColumn
+    @ManyToOne
+    Account toAccount ;
+
+    @JoinColumn
+    @ManyToOne
+    Account fromAccount;
+
+
 
 
 
