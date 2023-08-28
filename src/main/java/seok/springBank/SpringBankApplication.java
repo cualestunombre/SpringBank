@@ -8,6 +8,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.core.parameters.P;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import seok.springBank.domain.account.CheckingAccount;
@@ -17,6 +19,7 @@ import seok.springBank.domain.member.MemberSaveForm;
 import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.policy.Policy;
 import seok.springBank.domain.policy.PolicySaveForm;
+
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
 import seok.springBank.service.AccountService;
 import seok.springBank.service.MemberService;
@@ -36,6 +39,9 @@ public class SpringBankApplication {
 	@Component
 	public static class postCon{
 		@Autowired
+		EntityManager em;
+
+		@Autowired
 		MemberService memberService;
 		@Autowired
 		PolicyService policyService;
@@ -49,6 +55,7 @@ public class SpringBankApplication {
 		@EventListener(ApplicationReadyEvent.class)
 		@Transactional
 		public void devInit(){
+
 			PolicySaveForm checkingSaveForm = new PolicySaveForm();
 			PolicySaveForm commoditySaveForm = new PolicySaveForm();
 
@@ -102,7 +109,7 @@ public class SpringBankApplication {
 			newMember.setAuthenticated(true);
 
 			MemberSaveForm member2 = new MemberSaveForm();
-			member2.setEmail("1usian0@naver.com");
+			member2.setEmail("dntjrdn78@naver.com");
 			member2.setName("임현수");
 			member2.setPassword("dntjrdn78");
 			Member newMember2 = memberService.signup(member2);
@@ -115,9 +122,8 @@ public class SpringBankApplication {
 			accountRepository.save(checkingAccount);
 			CommodityAccount commodityAccount = CommodityAccount.createCommodityAccount("주식","111111111111111",commodityPolicy,newMember);
 			accountRepository.save(commodityAccount);
-
-
 		}
+
 
 
 

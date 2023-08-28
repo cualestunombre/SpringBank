@@ -59,21 +59,23 @@ public class AuthController {
 
     //로그인 페이지 렌더링
     @GetMapping("/login")
-    public String getLogin(Model model){
+    public String getLogin(Model model,@RequestParam(defaultValue = "false",value = "error") String error){
+        model.addAttribute("error",error);
         model.addAttribute("member",new MemberLoginForm());
         return "login";
     }
     //로그인 로직
-    @PostMapping("/login")
-    public String handleLogin(@ModelAttribute("member") MemberLoginForm form,BindingResult bindingResult,Model model, HttpServletRequest request,
-    @RequestParam(defaultValue = "") String redirectURL){
-        Member member = memberService.login(form,request);
-        if(member == null){
-            bindingResult.reject("LoginFail","아이디와 비밀번호를 확인해 주세요");
-            return "login";
-        }
-        return "redirect:" + (redirectURL.isEmpty() ? "/" : redirectURL);
-    }
+    //Deprecated
+//    @PostMapping("/login")
+//    public String handleLogin(@ModelAttribute("member") MemberLoginForm form,BindingResult bindingResult,Model model, HttpServletRequest request,
+//    @RequestParam(defaultValue = "") String redirectURL){
+//        Member member = memberService.login(form,request);
+//        if(member == null){
+//            bindingResult.reject("LoginFail","아이디와 비밀번호를 확인해 주세요");
+//            return "login";
+//        }
+//        return "redirect:" + (redirectURL.isEmpty() ? "/" : redirectURL);
+//    }
     //계정 생성 성공 메세지 렌더링
     @GetMapping("/created")
     public String memberCreated(@RequestParam String email, @RequestParam String code){
@@ -88,11 +90,12 @@ public class AuthController {
     }
 
     //로그아웃 로직
-    @GetMapping("/logout")
-    public String handleLogOut(HttpServletRequest request){
-        memberService.logout(request);
-        return "redirect:/";
-    }
+    //deprecated
+//    @GetMapping("/logout")
+//    public String handleLogOut(HttpServletRequest request){
+//        memberService.logout(request);
+//        return "redirect:/";
+//    }
     //이메일 인증 로직
     @GetMapping("/member")
     public String handleAuth(@RequestParam String code,@RequestParam String email){

@@ -105,7 +105,7 @@ public class InterestService {
                 loanAccount.setBalance(loanAccount.getBalance()-interest-loanAccount.getAmount()-overdueAmount);
                 loanAccount.setStatus("상환완료");
                 LoanTransactions loanTransactions = LoanTransactions
-                        .createLoanTransaction(loanAccount,(interest+overdueAmount+loanAccount.getAmount()),"원금상환");
+                        .createLoanTransaction(loanAccount,(interest+overdueAmount+loanAccount.getAmount()),"원금상환",false);
                 transactionRepository.save(loanTransactions);
             }
         }
@@ -141,7 +141,7 @@ public class InterestService {
                     loanAccount.setBalance(loanAccount.getBalance()-interest-loanAccount.getOverdueAmount());
                     LoanTransactions loanTransactions = LoanTransactions.createLoanTransaction(
                             loanAccount,interest + loanAccount.getOverdueAmount(),"대출이자 + 연체이자"
-                    );
+                    ,false);
                     loanAccount.setOverdueAmount(0L);
                     loanAccount.setOverdueCnt(0L);
                     transactionRepository.save(loanTransactions);
@@ -157,7 +157,7 @@ public class InterestService {
                 loanAccount.setBalance(loanAccount.getBalance()-interest);
                 LoanTransactions loanTransactions = LoanTransactions.createLoanTransaction(
                         loanAccount,interest,"대출이자"
-                );
+                ,false);
                 transactionRepository.save(loanTransactions);
             }
 
@@ -165,7 +165,7 @@ public class InterestService {
                 if (loanAccount.getBalance() >= loanAccount.getAmount()){
                     LoanTransactions loanTransactions = LoanTransactions.createLoanTransaction(
                             account, loanAccount.getAmount(),"원금상환"
-                    );
+                    ,false);
 
                     transactionRepository.save(loanTransactions);
                     loanAccount.setBalance(loanAccount.getBalance()-loanAccount.getAmount());

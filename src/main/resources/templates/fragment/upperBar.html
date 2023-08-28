@@ -6,10 +6,11 @@
       <a class="upper_signup noDeco"th:href="@{/auth/signup}">회원가입</a>
     </div>
   </th:block>
-  <th:block th:if="${loginMember!=null}">
+  <form method="post" action="/auth/logout" th:if="${loginMember!=null}">
     <div class="upper_greetingContainer">
       <p class="upper_greeting" >[[|${loginMember.name}님 반가워요|]]<p/>
-      <a class="upper_logout noDeco"th:href="@{/auth/logout}">로그아웃</a>
+      <button class="upper_logout noDeco"th:href="@{/auth/logout}">로그아웃</button>
+      <input type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
     </div>
-  </th:block>
+  </form>
 </div>

@@ -35,12 +35,12 @@ public class TransactionsService {
                 .filter(e->e.getMember().getId() == member.getId())
                 .findFirst()
                 .orElseThrow(()->{throw new IllegalArgumentException("Invalid Access");});
-       PageRequest pageRequest = PageRequest.of(Math.toIntExact(page)-1,5,Sort.by(Sort.Direction.ASC,"createdAt"));
+       PageRequest pageRequest = PageRequest.of(Math.toIntExact(page)-1,5,Sort.by(Sort.Direction.DESC,"createdAt"));
        Page<TransactionDto> transactionDtos = transactionRepository.findTranscationsByAccountId(id,pageRequest);
        return transactionDtos.getContent();
     }
     public Long getTransactionsPage(Long id){
-        PageRequest pageRequest = PageRequest.of(1,5,Sort.by(Sort.Direction.ASC,"createdAt"));
+        PageRequest pageRequest = PageRequest.of(1,5,Sort.by(Sort.Direction.DESC,"createdAt"));
         Page<TransactionDto> transactionDtos = transactionRepository.findTranscationsByAccountId(id,pageRequest);
         return (long) transactionDtos.getTotalPages();
     }

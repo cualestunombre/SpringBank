@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import seok.springBank.domain.BaseEntity;
 import seok.springBank.domain.account.Account;
+import seok.springBank.domain.etcForms.Role;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -31,6 +32,15 @@ public class Member extends BaseEntity {
     List<Account> accounts = new ArrayList<>();
 
     Boolean authenticated = false;
+
+    @Column(name="api_key",unique = true)
+    String apiKey;
+    @Column(name="api_password")
+    String apiPassword;
+
+    @Column(name="role",nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    Role role;
 
 
 }

@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import seok.springBank.domain.account.*;
+import seok.springBank.domain.etcForms.RepaymentDto;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.policy.CheckingPolicy;
 import seok.springBank.domain.policy.CommodityPolicy;
 import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.policy.Policy;
 import seok.springBank.domain.transactions.LoanTransactions;
+import seok.springBank.domain.transactions.TransferTransactions;
 import seok.springBank.exceptions.account.*;
 import seok.springBank.repository.accountRepository.AccountRepositoryV2;
 import seok.springBank.repository.memberRepository.MemberRepositoryV2;
@@ -103,7 +105,7 @@ public class AccountService {
         loanAccount.setOverdueCnt(0L);
 
         LoanTransactions loanTransactions = LoanTransactions.createLoanTransaction(
-                loanAccount, saveForm.getAmount(),"대출"
+                loanAccount, saveForm.getAmount(),"대출",true
         );
 
         transactionRepository.save(loanTransactions);
@@ -118,6 +120,42 @@ public class AccountService {
         Policy policy = policyRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
         List<Account> account = accountRepository.findAccountByPolicyAndNotExpired(policy);
         return account;
+    }
+
+    // 대출을 조기상환하는 로직
+    public RepaymentDto repay(String accountNumber,Long memberId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        LoanAccount account = (LoanAccount) accountRepository.findByAccountNumber(accountNumber)
+                .filter(e->e instanceof LoanAccount)
+                .stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Access"));
+        CheckingAccount checkingAccount = (CheckingAccount) accountRepository.findByMember(member)
+                .stream().filter(e -> e instanceof CheckingAccount)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Access"));
+        Long amount = account.getAmount();
+        Long overdue = account.getOverdueAmount();
+        Long balance = account.getBalance();
+        if (balance-amount-overdue<0L){
+            throw new IllegalArgumentException("Invalid Access");
+        }
+        else{
+            account.setExpired(true);
+            if (balance-amount-overdue != 0L){
+                LoanTransactions loanTransactions = LoanTransactions.createLoanTransaction(
+                        checkingAccount,balance-amount-overdue,"대출상환잉여금",true
+                );
+                transactionRepository.save(loanTransactions);
+                checkingAccount.setBalance(checkingAccount.getBalance()+ balance-amount-overdue);
+            }
+            RepaymentDto repaymentDto = new RepaymentDto();
+            repaymentDto.setMoney(balance-amount-overdue);
+            repaymentDto.setTargetCheckingAccount(checkingAccount.getAccountNumber());
+            return repaymentDto;
+
+        }
+
     }
 
 

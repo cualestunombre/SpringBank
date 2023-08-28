@@ -14,12 +14,21 @@ import javax.persistence.ManyToOne;
 @Setter
 @DiscriminatorValue(value="LOAN")
 public class LoanTransactions  extends Transactions{
-    public static LoanTransactions createLoanTransaction(Account toAccount, Long amount,String name){
+    public static LoanTransactions createLoanTransaction(Account account, Long amount,String name,Boolean receiver){
         LoanTransactions loanTransactions = new LoanTransactions();
-        loanTransactions.setTransactionsName(name);
-        loanTransactions.setAmount(amount);
-        loanTransactions.setToAccount(toAccount);
-        loanTransactions.setReceiverBalance(toAccount.getBalance());
+        if (receiver){
+            loanTransactions.setTransactionsName(name);
+            loanTransactions.setAmount(amount);
+            loanTransactions.setToAccount(account);
+            loanTransactions.setReceiverBalance(account.getBalance());
+        }
+        else{
+            loanTransactions.setTransactionsName(name);
+            loanTransactions.setAmount(amount);
+            loanTransactions.setFromAccount(account);
+            loanTransactions.setSenderBalance(account.getBalance());
+        }
+
         return loanTransactions;
     }
 

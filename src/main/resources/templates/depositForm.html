@@ -116,6 +116,7 @@
           <button type="button" onclick="deleteLastChar()">&#9003;</button>
         </div>
         <button id="submit"type="button" onclick="handleDeposit(event)">입금</button>
+        <input id="csrf" type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
       </form>
     </div>
   </div>
@@ -151,6 +152,8 @@
   function handleDeposit(event){
     let amount = document.querySelector(".deposit_form_account_input").value;
     let accountNumber = document.querySelector(".deposit_form_account_number span").innerText;
+    const csrf = document.querySelector("#csrf").getAttribute("value");
+    console.log(csrf);
     const amountToSend = parseMoney(amount);
     if (amount=='0' || amount==""){
       Swal.fire({
@@ -171,7 +174,7 @@
         cancelButtonText:"취소"
       }).then(async (result) => {
         if (result.isConfirmed) {
-            const data = await axios.post("/deposit",{"accountNumber":accountNumber,"balance":amountToSend});
+            const data = await axios.post("/deposit",{"accountNumber":accountNumber,"balance":amountToSend},{headers:{"X-CSRF-TOKEN":csrf}});
             if(data.headers['content-type']=="text/html;charset=UTF-8"){
                 location.href = "http://localhost:8080/auth/login";
                 return ;

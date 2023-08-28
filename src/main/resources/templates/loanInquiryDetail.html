@@ -28,7 +28,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
         }
         .loan_inquiry_title{
-            margin-top: 10px;
+            margin-top: 5px;
             text-align: center;
             font-weight: 200;
         }
@@ -57,14 +57,22 @@
             color:white;
         }
         .loan_inquiry_list{
-            width:100%;
-            height: 300px;
+
             background-color: #d8f4db;
+            opacity: 0.5;
+            width:100%;
+            height: 324px;
+
         }
         .loan_inquiry_pagination{
-            margin-top: 10px;
+            margin-top: 3px;
             display: flex;
             justify-content: center;
+        }
+        .clicked_btn{
+            background-color:rgb(86,143,77);
+
+
         }
         .page-item{
             color:#7FB06F;
@@ -114,6 +122,54 @@
             font-size: 13px;
             font-weight: 300;
         }
+        .loan_inquiry_item{
+            margin-top: 4px;
+            margin-left :20px;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .loan_inquiry_name_time{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .loan_inquiry_amount_balance{
+            margin-right: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items:flex-end;
+        }
+        .loan_inquiry_time{
+            font-size: 12px;
+        }
+        .loan_inquiry_person{
+            font-size: 15px;
+            font-weight: 300;
+
+        }
+        .loan_inquiry_name{
+            font-size: 17px;
+            font-weight: 600;
+            color:seagreen;
+        }
+        .loan_inquiry_balance{
+            font-size: 12px;
+        }
+        .loan_inquiry_receiver_amount{
+            font-size: 17px;
+            font-weight: 600;
+            color:blue;
+        }
+        .loan_inquiry_sender_amount{
+            font-size: 17px;
+            font-weight: 600;
+            color:red;
+        }
+        .active{
+            background-color: green;
+        }
 
 
     </style>
@@ -127,7 +183,9 @@
         <button data-bs-target="#information_inquiry" data-bs-toggle="modal" type="button" class="information_inquiry" onclick="checkInformation(event)">상환정보 조회</button>
         <h3 class="loan_inquiry_title">[[|${account.name}|]]</h3>
         <p class="loan_inquiry_account_number">[[|${account.accountNumber}|]]</p>
-        <div class="loan_inquiry_list"></div>
+        <div class="loan_inquiry_list">
+
+        </div>
         <div class="loan_inquiry_pagination">
             <nav aria-label="...">
                 <ul class="pagination">
@@ -186,39 +244,148 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <script>
+    const moveNExt = (event)=>{
+      workThePagination();
+      if(totalPage>=curPage+1){
+          curPage = Number.parseInt(curPage)+1;
+          loadItems(curPage);
+      }
+
+    };
+    const movePrevious = (event)=>{
+      workThePagination();
+      if(curPage-1>=1){
+          curPage = Number.parseInt(curPage)-1;
+          loadItems(curPage);
+      }
+
+    };
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+
+        return `${year}년 ${month}월 ${day}일 ${hours}시 ${minutes}분`;
+    }
+</script>
+<script>
+
     const start = `<li class="page-item">
-                        <button id="previous" class="page-link">이전</button>
+                        <button id="previous" onclick="movePrevious(event)" class="page-link">이전</button>
                     </li>`;
     const end = `<li class="page-item">
-        <button id="previous" class="page-link">다음</button>
+        <button id="next"  onclick="moveNExt(event)" class="page-link">다음</button>
     </li>`;
+    const handlePage = (event)=>{
+        const page = event.target.getAttribute("value");
+        curPage = parseInt(page);
+        workThePagination();
+        loadItems(curPage);
+    };
     const workThePagination = async()=>{
         const targetNode = document.querySelector(".pagination");
+        targetNode.innerHTML=``;
         targetNode.innerHTML=start;
         try{
             const {data:{message}} = await axios.get(`/loan/inquiry/count?accountNumber=${accountNumber}`);
             totalPage = message;
+            let step;
+            if (curPage-2>=1){
+                step = curPage - 2;
+            }
+            else if(curPage-1>=1){
+                step = curPage -1;
+            }
+            else{
+                step = curPage;
+            }
+
+            let startPoint = Number.parseInt(step);
+
             //page는 총 페이지 수임
-            for (let step = curPage; step<=totalPage && step<curPage+5; step++){
-                //page_buttons
-                //<li class="page-item"><button class="page-link" href="#">1</button></li>
-                const li = `<li class="page-item"><button class="page-link" >${step}</button></li>`;
+            for (step; step <= totalPage;step++){
+
+                if (step==startPoint+5) break;
+
+                let li = `<li class="page-item"><button value="${step}" onclick="handlePage(event)" class="page-link" >${step}</button></li>`;
+                if (step == curPage){
+                    li = `<li class="page-item"><button value="${step}" onclick="handlePage(event)" class="page-link active" >${step}</button></li>`;
+                }
                 targetNode.innerHTML+=li;
             }
             targetNode.innerHTML+=end;
         }catch (err){
             console.error(err);
         }
-
     }
+    const loadItems = async (page)=>{
+        const currentUrl = window.location.href;
+        const urlParts = currentUrl.split('/');
+        const id = urlParts[urlParts.length - 1];
+        const {data} = await axios.get(`/loan/inquiry/count/${id}/${page}`);
+        const target = document.querySelector(".loan_inquiry_list");
+        target.innerHTML = "";
+        data.forEach((ele)=>{
+            let {receiver,senderName,name,time,receiverName,amount,
+                receiverBalance,senderBalance} = ele;
+            time = formatDate(time);
+
+            let div;
+            if(receiver === true){
+                //내가 받는 입장
+                if (senderName==null){
+                    senderName = "";
+                }
+                div =
+                    `<div class="loan_inquiry_item">
+                    <div class="loan_inquiry_name_time">
+                        <div class="loan_inquiry_name">${name}</div>
+                        <div class="loan_inquiry_person">${senderName}</div>
+                        <div class="loan_inquiry_time">${time}</div>
+                    </div>
+                    <div class="loan_inquiry_amount_balance">
+                        <div class="loan_inquiry_receiver_amount">+${formatNumber(amount)}원</div>
+                        <div class="loan_inquiry_balance">${formatNumber(receiverBalance)}원</div>
+                    </div>
+                </div>`;
+            }
+            else{
+                if (receiverName==null){
+                    receiverName = "";
+                }
+                div =
+                    `<div class="loan_inquiry_item">
+                    <div class="loan_inquiry_name_time">
+                        <div class="loan_inquiry_name">${name}</div>
+                        <div class="loan_inquiry_person">${receiverName}</div>
+                        <div class="loan_inquiry_time">${time}</div>
+                    </div>
+                    <div class="loan_inquiry_amount_balance">
+                        <div class="loan_inquiry_sender_amount">-${formatNumber(amount)}원</div>
+                        <div class="loan_inquiry_balance">${formatNumber(senderBalance)}원</div>
+                    </div>
+                </div>`;
+
+            }
+            target.innerHTML += div;
+        });
+    };
+</script>
+<script>
     const accountNumber = document.querySelector(".loan_inquiry_account_number").innerText;
     let curPage = 1;
     let totalPage ;
+    // 페이지 네이션 시작
     workThePagination();
+    loadItems(curPage);
 
     const formatNumber = (input)=>{
         return Number(input).toLocaleString('en-US');
     };
+
 
 
 

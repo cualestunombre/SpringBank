@@ -146,6 +146,8 @@
       </div>
 
       <button type="submit" class="account_opening_submit">계좌 개설</button>
+      <input type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
+
     </form>
 
     <table class="account_policy_table">

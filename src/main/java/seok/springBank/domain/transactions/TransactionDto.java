@@ -7,11 +7,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @RequiredArgsConstructor
 public class TransactionDto {
    private final String senderName;
    private final String receiverName;
-
    private final Long senderBalance;
    private final Long receiverBalance;
    private final String senderAccountNumber;
@@ -19,5 +19,7 @@ public class TransactionDto {
    private final String name;
    private final LocalDateTime time;
    private final Long amount;
+
+   private Boolean receiver;
 
 }

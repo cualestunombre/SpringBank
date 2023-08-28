@@ -11,9 +11,7 @@ import seok.springBank.domain.account.Account;
 import seok.springBank.domain.account.LoanAccount;
 import seok.springBank.domain.account.LoanAccountSaveForm;
 import seok.springBank.domain.account.LoanTransferForm;
-import seok.springBank.domain.etcForms.InformationDto;
-import seok.springBank.domain.etcForms.OverdueDto;
-import seok.springBank.domain.etcForms.SimpleJsonResponse;
+import seok.springBank.domain.etcForms.*;
 import seok.springBank.domain.member.Member;
 import seok.springBank.domain.policy.LoanPolicy;
 import seok.springBank.domain.transactions.LoanTransactions;
@@ -143,11 +141,43 @@ public class LoanJsonController{
     @GetMapping("/loan/inquiry/count/{id}/{page}")
     @ResponseBody
     public List<TransactionDto> loanTransactionPage(@Login Member loginMember, @PathVariable(required = true) Long id,@PathVariable(required = true)Long page){
-        List<TransactionDto> transactionDtos = transactionsService.getTransactions(id,page,loginMember).stream().peek((e)->{
+        LoanAccount loanAccount = (LoanAccount) accountService.getAccountsById(id).orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        List<TransactionDto> transactionDtos =
+                transactionsService.getTransactions(id,page,loginMember)
+                        .stream()
+                        .map(e->{
+                            TransactionDto transactionDto;
+                            if(loanAccount.getAccountNumber().equals(e.getReceiverAccountNumber())){
+                                transactionDto = new TransactionDto(
+                                        e.getSenderName(),e.getReceiverName(),
+                                        null,e.getReceiverBalance(),
+                                        e.getSenderAccountNumber(),e.getReceiverAccountNumber(),
+                                        e.getName(),e.getTime(),e.getAmount()
+                                );
+                                transactionDto.setReceiver(true);
+                            }
+                            else{
+                                transactionDto = new TransactionDto(
+                                        e.getSenderName(),e.getReceiverName(),
+                                        e.getSenderBalance(),null,
+                                        e.getSenderAccountNumber(),e.getReceiverAccountNumber(),
+                                        e.getName(),e.getTime(),e.getAmount()
+                                );
+                                transactionDto.setReceiver(false);
+                            }
+                          return transactionDto;
+                        })
+                        .collect(Collectors.toList());
 
-        }).collect(Collectors.toList());
-        System.out.println(transactionDtos.size());
         return transactionDtos;
+    }
+
+    @ResponseBody
+    @PostMapping("/loan/repay")
+    public RepaymentDto handleRepayment(@Login Member loginMember,@RequestBody LoanRepayForm form){
+
+        return accountService.repay(form.getAccountNumber(), loginMember.getId());
+
     }
 
 

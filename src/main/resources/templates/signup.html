@@ -208,6 +208,7 @@
         <div class="signup_box_submit">
             <button id="submitBtn" type="submit">제출</button>
         </div>
+        <input id="csrf" type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
     </form>
 </div>
 <th:block th:replace="fragment/footer :: footer"></th:block>

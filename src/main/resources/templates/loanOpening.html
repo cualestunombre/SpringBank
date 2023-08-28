@@ -136,6 +136,7 @@
         <div class="loan_opening_warning">- 기존에 동종의 대출이 있으신 분은 해당 상품 대출이 불가능합니다 </div>
         <div class="loan_opening_warning">- 현재 연체 기록이 있으신 분 또한 해당 상품 대출이 불가능합니다 </div>
         <div class="loan_opening_warning">- 하나 이상의 입출금 계좌가 없으신 분은 해당 상품 대출이 불가능합니다 </div>
+        <div class="loan_opening_warning">- 원금은 만기 상환을 원칙으로 합니다 </div>
         <button type="button" class="loan_opening_ok" onclick="handleClick(event)">확인</button>
     </div>
     <div class="loan_opening_form no_show" th:value="${policyId}">
@@ -151,6 +152,7 @@
         </div>
         <button class="back" style="background-color:#7FB06F;" onclick="handleLoan(event)" data-bs-toggle="modal" data-bs-target="#exampleModal">대출실행</button>
         <button class="back" onclick="moveBack(event)">뒤로</button>
+        <input id="csrf" type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
     </div>
 
 
@@ -165,6 +167,7 @@
     const title = [[${title}]];
 </script>
 <script>
+    const csrf = document.querySelector("#csrf").getAttribute("value");
     const maxAmount= [[${maxAmount}]];
     const maxDuration = [[${maxDuration}]];
     const interrestRate = [[${interestRate}]];
@@ -194,7 +197,7 @@
             if (result.isConfirmed) {
                 console.log(id,amount,duration);
                 try{
-                    const {data:{message}}=await axios.post("/loan/create",{policyId:id,amount:parseMoney(amount),duration:duration});
+                    const {data:{message}}=await axios.post("/loan/create",{policyId:id,amount:parseMoney(amount),duration:duration},{headers:{"X-CSRF-TOKEN":csrf}});
                     location.href = `/loan/created?name=${encodeURI(title)}&number=${message}`;
                 }catch(err){
                     location.href = "/error";

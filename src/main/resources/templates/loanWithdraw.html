@@ -14,6 +14,7 @@
 </head>
 <body>
 <th:block th:replace="fragment/upperBar :: upper"></th:block>
+<input id="csrf" type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
 <div class="loan_transfer_container">
     <div id="loan_list" class="loan_account_lists" th:if="${loanAccounts.size() > 0}">
         <p class="loan_accounts_lists_title">대출계좌목록 / 대출계좌 출금</p>
@@ -103,6 +104,7 @@
     let balance;
     let selectedLoan;
     let selectedChecking;
+    const csrf = document.querySelector("#csrf").getAttribute("value");
     async function handleWithdraw(event) {
         // 보내고자 하는 돈
         let amount = document.querySelector(".transfer_form_transfer_amount_input").value;
@@ -137,7 +139,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try{
-                        const {data:{code}} = await axios.post("http://localhost:8080/loan/withdraw",{checkingAccountId:selectedChecking,amount:amount,loanName:selectedLoan});
+                        const {data:{code}} = await axios.post("http://localhost:8080/loan/withdraw",{checkingAccountId:selectedChecking,amount:amount,loanName:selectedLoan},{headers:{'X-CSRF-TOKEN':csrf}});
                         location.href = `http://localhost:8080/success/${encodeURI("출금")}`;
 
                     }catch(err){

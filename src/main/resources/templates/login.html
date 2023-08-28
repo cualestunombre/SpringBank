@@ -93,7 +93,7 @@
 <div class="container-fluid login_container">
   <div class="row justify-content-center">
     <div class="login_contents">
-      <form th:action method="post" th:object="${member}">
+      <form action="/auth/login" method="post" th:object="${member}">
         <div class="login_box_email login_flex">
           <label for="email">이메일</label>
           <input id="email" type="text" placeholder="이메일을 입력해 주세요" th:field="*{email}">
@@ -103,7 +103,8 @@
           <input id="password" type="password" placeholder="비밀번호를 입력해주세요" th:field="*{password}">
         </div>
         <button type="submit" class="login_button">로그인</button>
-        <p class="login_field-error" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+        <input id="csrf" type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
+        <p class="login_field-error" th:if="${error == 'true'}" th:text="'아이디 또는 비밀번호를 확인해 주세요'"></p>
       </form>
     </div>
   </div>

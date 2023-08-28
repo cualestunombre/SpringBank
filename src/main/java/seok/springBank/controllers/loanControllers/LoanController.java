@@ -122,6 +122,29 @@ public class LoanController {
         model.addAttribute("account",loanAccount);
         return "loanInquiryDetail";
     }
+    @GetMapping("/loan/repay")
+    public String loanRepayment(Model model,@Login Member loginMember){
+        model.addAttribute("loginMember",loginMember);
+        List<LoanAccount> accounts = accountService.getLoanAccounts(loginMember);
+        model.addAttribute("loanAccounts",accounts);
+        return "loanRepayment";
+    }
+
+    @GetMapping("/loan/repay/{id}")
+    public String loanRepaymentDetail(Model model, @PathVariable(value = "id")Long id,@Login Member loginMember){
+        LoanAccount account = (LoanAccount) accountService.getAccountsById(id)
+                .stream().filter(e->e.getMember().getEmail().equals(loginMember.getEmail()))
+                .filter(e->e instanceof LoanAccount)
+                .findFirst()
+                .orElseThrow(()->new IllegalArgumentException("Invalid Access"));
+        model.addAttribute("loanAccount",account);
+        model.addAttribute("loginMember",loginMember);
+        return "loanRepaymentDetail";
+
+    }
+
+
+
 
 }
 

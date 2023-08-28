@@ -32,6 +32,9 @@
     color:rgb(86,143,77);
 }
 .upper_logout{
+    padding: 0px;
+    border: none;
+    background-color: white;
     color:rgb(86,143,77);
 }
 .upper_greeting{
@@ -40,7 +43,7 @@
 .upper_greetingContainer{
 
     padding-right:20px;
-    width:200px;
+    width:220px;
     padding-top: 15px;
     display: flex;
     justify-content: space-between;

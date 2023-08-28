@@ -1,6 +1,6 @@
 package seok.springBank.exceptions.account;
 
-public class AccountMoreThanFive extends Exception{
+public class AccountMoreThanFive extends RuntimeException{
     public AccountMoreThanFive(String message){
         super(message);
     }

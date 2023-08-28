@@ -10,6 +10,7 @@
 </head>
 <body>
 <th:block th:replace="fragment/upperBar :: upper"></th:block>
+<input id="csrf" type="hidden" th:value="${_csrf.getToken()}" th:name="${_csrf.getParameterName()}">
 <div  class="transfer_form_container">
     <div id="box1" class="transfer_form_box">
             <div class="transfer_form_account_number"> 계좌번호 - <span>[[${account.accountNumber}]]</span></div>
@@ -70,6 +71,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
+    const csrf = document.querySelector("#csrf").getAttribute("value");
     function moveBack(event){
         document.querySelector("#box1").classList.remove("no_show");
         document.querySelector("#box2").classList.add("no_show");
@@ -109,7 +111,7 @@
             });
         }
         else{
-            const {data:{name,accountNumber}} = await axios.post("http://localhost:8080/account/check",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber});
+            const {data:{name,accountNumber}} = await axios.post("http://localhost:8080/account/check",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber},{headers:{'X-CSRF-TOKEN':csrf}});
             Swal.fire({
                 title:  `해당 계좌로 ${Number(amount).toLocaleString('en-US')}원을 이체하시겠어요?`,
                 text:  `성명 ${name} 계좌번호 ${accountNumber}`,
@@ -122,7 +124,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try{
-                        const {data:{code}} = await axios.post("http://localhost:8080/transfer",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber,"amount":amount});
+                        const {data:{code}} = await axios.post("http://localhost:8080/transfer",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber,"amount":amount},{headers:{'X-CSRF-TOKEN':csrf}});
                         location.href = `http://localhost:8080/success/${encodeURI("이체")}`;
 
                     }catch(err){
@@ -141,7 +143,7 @@
         const myAccountNumber = document.querySelector(".transfer_form_account_number span").innerText;
         try{
 
-            const {data:{name,accountNumber}} = await axios.post("http://localhost:8080/account/check",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber});
+            const {data:{name,accountNumber}} = await axios.post("http://localhost:8080/account/check",{"targetAccountNumber":targetAccountNumber,"myAccountNumber":myAccountNumber},{headers:{'X-CSRF-TOKEN':csrf}});
             Swal.fire({
                 title: '보내고자 하시는 계좌가 맞나요?',
                 text:  `성명 ${name} 계좌번호 ${accountNumber}`,
